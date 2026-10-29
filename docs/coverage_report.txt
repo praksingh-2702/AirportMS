@@ -1,0 +1,17 @@
+Name                              Stmts   Miss  Cover   Missing
+---------------------------------------------------------------
+ams/__init__.py                       1      0   100%
+ams/access.py                        10      1    90%   11
+ams/config.py                        20      0   100%
+ams/database.py                      56      2    96%   78, 175
+ams/errors.py                         6      0   100%
+ams/models.py                       113      1    99%   162
+ams/security.py                      12      0   100%
+ams/services/__init__.py              5      0   100%
+ams/services/auth_service.py         51      8    84%   41, 47-49, 72, 76-78
+ams/services/booking_service.py      96     14    85%   24, 44-45, 48-49, 67, 72, 86-88, 97, 107, 113, 122
+ams/services/checkin_service.py      95      5    95%   83, 108, 123, 132-133
+ams/services/flight_service.py      121     13    89%   33, 39-41, 51-53, 84, 137, 159, 167-168, 173, 185
+ams/validators.py                   134     14    90%   34, 50, 79, 86, 101-102, 110-114, 121, 123, 174
+---------------------------------------------------------------
+TOTAL                               720     58    92%

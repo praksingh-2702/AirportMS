@@ -1,0 +1,35 @@
+digraph "structure_chart_transaction" {
+  graph [fontname="DejaVu Sans" pad=0.3 rankdir=TB nodesep=0.35 ranksep=0.9];
+  node [fontname="DejaVu Sans" fontsize=12];
+  edge [fontname="DejaVu Sans" fontsize=10 color="#333333"];
+  node [shape=box style="filled" fillcolor="white" penwidth=1.3 width=1.6];
+  labelloc=t label="Structure Chart 1 - Transaction Analysis (role-based dashboard)" fontsize=14;
+  root [label="AirportApp\n(main)" fillcolor="#D9E8FB"];
+  login [label="Get Login\nLoginView.login()" fillcolor="white"];
+  disp [label="Dispatch Transaction\nshow_dashboard(user)" fillcolor="#E8F5E9"];
+  t1 [label="Flight Scheduling\nFlightView" fillcolor="white"];
+  t2 [label="Passenger Booking\nBookingView" fillcolor="white"];
+  t3 [label="Check-in & Baggage\nCheckInView" fillcolor="white"];
+  t4 [label="User Management\nUsersView" fillcolor="white"];
+  t5 [label="Boarding Pass\nBoardingPassView" fillcolor="white"];
+  f1 [label="FlightService\nadd/update/cancel" fillcolor="white"];
+  b1 [label="BookingService\nsearch/book/cancel" fillcolor="white"];
+  c1 [label="CheckInService\ncheck_in/add_bag" fillcolor="white"];
+  u1 [label="AuthService\ncreate_staff_account" fillcolor="white"];
+  a1 [label="AuthService\nlogin()" fillcolor="white"];
+  disp_sel [shape=diamond label="" width=0.35 height=0.35 style=filled fillcolor="#FFF4C2"];
+  disp -> disp_sel [arrowhead=none];
+  root -> login [label="○ user ↑" arrowsize=0.7];
+  login -> a1 [label="○ username, password ↓\n○ user ↑\n● auth_ok ↑" arrowsize=0.7];
+  root -> disp [label="○ user ↓\n● role ↓" arrowsize=0.7];
+  disp_sel -> t1 [label="○ ctx ↓" arrowsize=0.7];
+  disp_sel -> t2 [label="○ ctx ↓" arrowsize=0.7];
+  disp_sel -> t3 [label="○ ctx ↓" arrowsize=0.7];
+  disp_sel -> t4 [label="○ ctx ↓" arrowsize=0.7];
+  disp_sel -> t5 [label="○ ctx ↓" arrowsize=0.7];
+  t1 -> f1 [label="○ flight fields ↓\n○ flight ↑" arrowsize=0.7];
+  t2 -> b1 [label="○ flight_id, seat ↓\n○ booking ↑" arrowsize=0.7];
+  t3 -> c1 [label="○ pnr, weight ↓\n○ boarding pass, bag ↑" arrowsize=0.7];
+  t4 -> u1 [label="○ account fields ↓\n○ user ↑" arrowsize=0.7];
+  legend [shape=note fillcolor="#EEEEEE" fontsize=10 label="○ data couple   ● control flag\n↓ passed to called module   ↑ returned to caller"];
+}

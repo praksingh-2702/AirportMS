@@ -1,0 +1,38 @@
+@startuml
+!include _style.iuml
+title Sequence Diagram - Book Ticket
+actor Passenger
+participant ":BookingView" as BV
+participant ":SeatMap" as SM
+participant ":BookingService" as BS
+participant "access" as AC
+participant "validators" as V
+database "SQLite DB" as DB
+Passenger -> BV : select flight, click "Book selected flight"
+BV -> BS : get_taken_seats(flight_id)
+BS -> DB : SELECT seat FROM bookings
+DB --> BS : seats
+BS --> BV : taken
+BV -> SM ** : SeatMap(flight, taken)
+Passenger -> SM : pick(seat), confirm()
+SM --> BV : on_pick(seat)
+BV -> BS : book_ticket(user, flight_id, seat, now)
+activate BS
+BS -> AC : require_role(user, PASSENGER)
+BS -> DB : SELECT flight
+DB --> BS : flight row
+alt flight not bookable / departed
+  BS --> BV : BusinessRuleError
+  BV --> Passenger : error dialog
+else bookable
+  BS -> V : parse_seat(seat, rows)
+  V --> BS : "12C"
+  BS -> BS : get_taken_seats(), duplicate check
+  BS -> BS : _unique_pnr()
+  BS -> DB : INSERT INTO bookings
+  BS -> BS : get_booking(id)
+  BS --> BV : Booking
+  deactivate BS
+  BV --> Passenger : "Booking confirmed, PNR"
+end
+@enduml

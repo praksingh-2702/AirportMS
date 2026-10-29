@@ -1,0 +1,34 @@
+@startuml
+!include _style.iuml
+title Sequence Diagram - Check In Passenger
+actor "Check-in Staff" as Staff
+participant ":CheckInView" as CV
+participant ":CheckInService" as CS
+participant "access" as AC
+participant "validators" as V
+database "SQLite DB" as DB
+participant ":BoardingPass" as BP
+Staff -> CV : enter PNR, click "Check in passenger"
+CV -> CS : check_in(user, pnr, now)
+activate CS
+CS -> AC : require_role(user, STAFF, ADMIN)
+CS -> CS : find_booking(pnr)
+activate CS
+CS -> V : validate_pnr(pnr)
+CS -> DB : SELECT booking JOIN users JOIN flights
+DB --> CS : row
+deactivate CS
+alt cancelled / already checked in / flight not operating / outside window
+  CS --> CV : BusinessRuleError(reason)
+  CV --> Staff : error dialog
+else eligible
+  CS -> DB : SELECT MAX(boarding_seq)+1
+  CS -> DB : UPDATE bookings SET CHECKED_IN, seq
+  CS -> CS : get_boarding_pass(user, pnr)
+  CS -> BP ** : BoardingPass(...)
+  CS --> CV : BoardingPass
+  deactivate CS
+  CV -> BP : as_text()
+  CV --> Staff : show boarding pass
+end
+@enduml

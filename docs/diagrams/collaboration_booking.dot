@@ -1,0 +1,21 @@
+digraph "collaboration_booking" {
+  graph [fontname="DejaVu Sans" pad=0.3 rankdir=TB nodesep=0.6 ranksep=1.0];
+  node [fontname="DejaVu Sans" fontsize=12];
+  edge [fontname="DejaVu Sans" fontsize=10 color="#333333"];
+  node [shape=box style=filled fillcolor="#D9E8FB" penwidth=1.3 fontsize=13];
+  edge [fontsize=12];
+  labelloc=t label="Collaboration Diagram - Book Ticket" fontsize=16;
+  actor [shape=none image="/home/claude/AirportMS/docs/diagrams/_actor.png" labelloc=b height=1.6 fillcolor=white label="Passenger"];
+  bv [ label=<<U>:BookingView</U>>];
+  sm [ label=<<U>:SeatMap</U>>];
+  bs [ label=<<U>:BookingService</U>>];
+  ac [ label=<<U>access</U>>];
+  va [ label=<<U>validators</U>>];
+  db [ label=<<U>:SQLite DB</U>>];
+  actor -> bv [dir=none label="1: select flight, Book →\n3: pick(seat), confirm() → (SeatMap)"];
+  bv -> sm [dir=none label="2: SeatMap(flight, taken) →\n4: on_pick(seat) ←"];
+  bv -> bs [dir=none label="1.1: get_taken_seats(flight_id) →\n5: book_ticket(user, flight_id, seat) →\n5.7: Booking ←"];
+  bs -> ac [dir=none label="5.1: require_role(user, PASSENGER) →"];
+  bs -> va [dir=none label="5.3: parse_seat(seat, rows) →"];
+  bs -> db [dir=none label="1.2: SELECT taken seats →\n5.2: SELECT flight →\n5.4: SELECT taken seats →\n5.5: SELECT existing PNR →\n5.6: INSERT booking →"];
+}

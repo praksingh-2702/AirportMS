@@ -1,0 +1,50 @@
+@startuml
+!include _style.iuml
+title Activity Diagram - Check-in and Baggage
+|Check-in Staff|
+start
+:Enter passenger PNR;
+|System|
+if (PNR format valid and booking exists?) then (no)
+  :Show error;
+  stop
+endif
+:Display booking details;
+|Check-in Staff|
+:Click "Check in passenger";
+|System|
+if (Booking cancelled or already checked in?) then (yes)
+  :Show reason;
+  stop
+endif
+if (Flight cancelled or departed?) then (yes)
+  :Show reason;
+  stop
+endif
+if (Within 48 h .. 45 min before departure?) then (no)
+  :Show "check-in opens / closed";
+  stop
+endif
+:Assign next boarding sequence;
+:Set booking CHECKED_IN;
+:Generate boarding pass;
+fork
+  |Check-in Staff|
+  :Hand boarding pass to passenger;
+fork again
+  |Check-in Staff|
+  while (Passenger has another bag?) is (yes)
+    :Weigh bag and enter weight;
+    |System|
+    if (0 < weight <= 32 kg and fewer than 3 bags?) then (yes)
+      :Save bag, generate tag AMSnnnnnn;
+      :Recompute total weight and excess fee;
+    else (no)
+      :Show error;
+    endif
+    |Check-in Staff|
+  endwhile (no)
+  :Attach tags, collect excess fee;
+end fork
+stop
+@enduml

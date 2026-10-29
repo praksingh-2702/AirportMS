@@ -1,0 +1,23 @@
+digraph "cfg_excess_fee" {
+  graph [fontname="DejaVu Sans" pad=0.3 rankdir=TB nodesep=0.35 ranksep=0.35];
+  node [fontname="DejaVu Sans" fontsize=12];
+  edge [fontname="DejaVu Sans" fontsize=10 color="#333333"];
+  labelloc=t label="CFG - compute_excess_fee()" fontsize=13;
+  node [shape=circle style=filled fillcolor="#D9E8FB" width=0.45 fixedsize=true fontsize=11];
+  "1" [fillcolor="#FFF4C2"];
+  "2";
+  "3" [fillcolor="#FFF4C2"];
+  "4";
+  "5";
+  "R" [fillcolor="#F6D5D5" shape=box fixedsize=false width=0.3 label="R"];
+  "E";
+  "1" -> "R" [label="T"];
+  "1" -> "2" [label="F"];
+  "2" -> "3" [label=""];
+  "3" -> "4" [label="T"];
+  "3" -> "5" [label="F"];
+  "4" -> "E" [label="return 0"];
+  "5" -> "E" [label="return fee"];
+  "R" -> "E" [label=""];
+  info [shape=note fixedsize=false fillcolor="#EEEEEE" fontsize=10 label="N = 7, E = 8\nV(G) = E - N + 2 = 3\nV(G) = P + 1 = 3"];
+}

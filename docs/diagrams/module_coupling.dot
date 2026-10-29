@@ -1,0 +1,40 @@
+digraph "module_coupling" {
+  graph [fontname="DejaVu Sans" pad=0.3 rankdir=TB nodesep=0.3 ranksep=0.7 compound=true];
+  node [fontname="DejaVu Sans" fontsize=12];
+  edge [fontname="DejaVu Sans" fontsize=10 color="#333333"];
+  node [shape=box style="filled" fillcolor="#D9E8FB"];
+  subgraph cluster_gui { label="Presentation layer (ams.gui)" style=dashed; app [label="AirportApp / AppContext"]; lv [label="LoginView"]; fv [label="FlightView"]; bv [label="BookingView"]; cv [label="CheckInView"]; uv [label="UsersView"]; }
+  subgraph cluster_svc { label="Service layer (ams.services)" style=dashed; as [label="AuthService"]; fs [label="FlightService"]; bs [label="BookingService"]; cs [label="CheckInService"]; }
+  subgraph cluster_util { label="Utility / data layer" style=dashed; node [fillcolor="#FFF4C2"]; val [label="validators"]; acc [label="access"]; sec [label="security"]; mod [label="models"]; cfg [label="config"]; err [label="errors"]; }
+  db [shape=cylinder fillcolor="#EEEEEE" label="SQLite\nairport.db"];
+  app -> lv;
+  app -> fv;
+  app -> bv;
+  app -> cv;
+  app -> uv;
+  lv -> as;
+  uv -> as;
+  fv -> fs;
+  bv -> bs;
+  bv -> fs;
+  cv -> cs;
+  cv -> bs;
+  as -> val [color="#777777"];
+  as -> acc [color="#777777"];
+  as -> mod [color="#777777"];
+  as -> db [color="#1E3A5F" penwidth=1.3];
+  fs -> val [color="#777777"];
+  fs -> acc [color="#777777"];
+  fs -> mod [color="#777777"];
+  fs -> db [color="#1E3A5F" penwidth=1.3];
+  bs -> val [color="#777777"];
+  bs -> acc [color="#777777"];
+  bs -> mod [color="#777777"];
+  bs -> db [color="#1E3A5F" penwidth=1.3];
+  cs -> val [color="#777777"];
+  cs -> acc [color="#777777"];
+  cs -> mod [color="#777777"];
+  cs -> db [color="#1E3A5F" penwidth=1.3];
+  as -> sec [color="#777777"]; cs -> bs [style=dashed label="DETAILS_SQL"];
+  val -> cfg; val -> err; acc -> err;
+}

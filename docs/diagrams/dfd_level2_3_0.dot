@@ -1,0 +1,23 @@
+digraph "Level 2 - 3.0" {
+  graph [rankdir=TB splines=true nodesep=0.5 ranksep=0.9 fontname="DejaVu Sans" pad=0.3 newrank=true];
+  edge [color="#444444" fontname="DejaVu Sans" fontsize=10 arrowsize=0.7];
+  "3.1" [shape=circle style=filled fillcolor="#D9E8FB" color="#000000" penwidth=1.6 fontname="DejaVu Sans" fontsize=12 fixedsize=true width=1.45 label="3.1\nValidate\nSearch Criteria"];
+  "3.2" [shape=circle style=filled fillcolor="#D9E8FB" color="#000000" penwidth=1.6 fontname="DejaVu Sans" fontsize=12 fixedsize=true width=1.45 label="3.2\nFilter\nBookable Flights"];
+  "3.3" [shape=circle style=filled fillcolor="#D9E8FB" color="#000000" penwidth=1.6 fontname="DejaVu Sans" fontsize=12 fixedsize=true width=1.45 label="3.3\nCompute\nSeats Left"];
+  "D2" [shape=plain label=<<TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="5"><TR><TD SIDES="TBR" BGCOLOR="#E6E6E6"><B>D2</B></TD><TD SIDES="TB" WIDTH="110" ALIGN="LEFT">Flights</TD></TR></TABLE>> fontname="DejaVu Sans" fontsize=12];
+  "D3" [shape=plain label=<<TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="5"><TR><TD SIDES="TBR" BGCOLOR="#E6E6E6"><B>D3</B></TD><TD SIDES="TB" WIDTH="110" ALIGN="LEFT">Bookings</TD></TR></TABLE>> fontname="DejaVu Sans" fontsize=12];
+  "PAX_3.1" [shape=box style=filled fillcolor="#FFF4C2" color="#000000" penwidth=1.6 fontname="DejaVu Sans" fontsize=12 margin="0.15,0.08" label="Passenger"];
+  "PAX_3.3" [shape=box style=filled fillcolor="#FFF4C2" color="#000000" penwidth=1.6 fontname="DejaVu Sans" fontsize=12 margin="0.15,0.08" label="Passenger"];
+  "PAX_3.1" -> "3.1" [label="Search criteria"];
+  "3.1" -> "3.2" [label="Valid criteria" constraint=false];
+  "3.2" -> "D2" [label="Flight record" dir=back];
+  "3.2" -> "3.3" [label="Matching flights"];
+  "D3" -> "3.3" [label="Taken seats"];
+  "3.3" -> "PAX_3.3" [label="Flight list"];
+  "3.1" -> "3.2" [style=invis weight=10];
+  { rank=same; "PAX_3.1"; }
+  { rank=same; "3.1"; "3.2"; }
+  { rank=same; "D2"; "D3"; }
+  { rank=same; "3.3"; }
+  { rank=same; "PAX_3.3"; }
+}

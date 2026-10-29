@@ -1,0 +1,84 @@
+@startuml
+!include _style.iuml
+hide empty members
+package "ams.gui (boundary classes)" {
+  class AirportApp {
+    +ctx : AppContext
+    +show_login()
+    +show_dashboard(user)
+  }
+  class AppContext {
+    +auth : AuthService
+    +flights : FlightService
+    +bookings : BookingService
+    +checkin : CheckInService
+    +user : User
+    +now() : datetime
+  }
+  class LoginView {
+    +login()
+    +open_register()
+  }
+  class RegisterDialog {
+    +submit()
+  }
+  class FlightView {
+    +refresh()
+    +add()
+    +update()
+    +assign_gate()
+    +set_status()
+    +cancel()
+  }
+  class BookingView {
+    +search()
+    +book()
+    +cancel()
+    +refresh_bookings()
+  }
+  class SeatMap {
+    +pick(seat)
+    +confirm()
+  }
+  class CheckInView {
+    +lookup()
+    +check_in()
+    +add_bag()
+    +update_bag()
+  }
+  class BoardingPassView {
+    +refresh()
+  }
+  class UsersView {
+    +refresh()
+    +create()
+  }
+  class DataTable
+  class FormPanel
+}
+package "ams.services" {
+  class AuthService
+  class FlightService
+  class BookingService
+  class CheckInService
+}
+AirportApp *-- "1" AppContext
+AirportApp ..> LoginView : creates
+AirportApp ..> FlightView : creates (ROLE_TABS)
+AirportApp ..> BookingView
+AirportApp ..> CheckInView
+AirportApp ..> BoardingPassView
+AirportApp ..> UsersView
+LoginView ..> RegisterDialog
+BookingView ..> SeatMap
+FlightView --> AppContext
+BookingView --> AppContext
+CheckInView --> AppContext
+UsersView --> AppContext
+FlightView *-- DataTable
+FlightView *-- FormPanel
+AppContext *-- AuthService
+AppContext *-- FlightService
+AppContext *-- BookingService
+AppContext *-- CheckInService
+@enduml

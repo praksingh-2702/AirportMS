@@ -1,0 +1,13 @@
+@startuml
+!include _style.iuml
+title State Chart - Bag (BAG_TRANSITIONS)
+[*] --> CHECKED_IN : add_bag()\n/ generate tag
+CHECKED_IN --> LOADED : update_bag_status(LOADED)
+LOADED --> UNLOADED : update_bag_status(UNLOADED)
+UNLOADED --> CLAIMED : update_bag_status(CLAIMED)
+CHECKED_IN --> MISHANDLED : update_bag_status(MISHANDLED)
+LOADED --> MISHANDLED : update_bag_status(MISHANDLED)
+UNLOADED --> MISHANDLED : update_bag_status(MISHANDLED)
+MISHANDLED --> CLAIMED : update_bag_status(CLAIMED)
+CLAIMED --> [*]
+@enduml

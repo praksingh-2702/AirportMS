@@ -1,0 +1,38 @@
+digraph "Level 2 - 1.0" {
+  graph [rankdir=TB splines=true nodesep=0.5 ranksep=0.9 fontname="DejaVu Sans" pad=0.3 newrank=true];
+  edge [color="#444444" fontname="DejaVu Sans" fontsize=10 arrowsize=0.7];
+  "1.1" [shape=circle style=filled fillcolor="#D9E8FB" color="#000000" penwidth=1.6 fontname="DejaVu Sans" fontsize=12 fixedsize=true width=1.45 label="1.1\nRegister\nPassenger"];
+  "1.2" [shape=circle style=filled fillcolor="#D9E8FB" color="#000000" penwidth=1.6 fontname="DejaVu Sans" fontsize=12 fixedsize=true width=1.45 label="1.2\nCreate Staff\nAccount"];
+  "1.3" [shape=circle style=filled fillcolor="#D9E8FB" color="#000000" penwidth=1.6 fontname="DejaVu Sans" fontsize=12 fixedsize=true width=1.45 label="1.3\nVerify\nCredentials"];
+  "1.4" [shape=circle style=filled fillcolor="#D9E8FB" color="#000000" penwidth=1.6 fontname="DejaVu Sans" fontsize=12 fixedsize=true width=1.45 label="1.4\nList\nUsers"];
+  "D1" [shape=plain label=<<TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="5"><TR><TD SIDES="TBR" BGCOLOR="#E6E6E6"><B>D1</B></TD><TD SIDES="TB" WIDTH="110" ALIGN="LEFT">Users</TD></TR></TABLE>> fontname="DejaVu Sans" fontsize=12];
+  "PAX_1.1" [shape=box style=filled fillcolor="#FFF4C2" color="#000000" penwidth=1.6 fontname="DejaVu Sans" fontsize=12 margin="0.15,0.08" label="Passenger"];
+  "ADM_1.2" [shape=box style=filled fillcolor="#FFF4C2" color="#000000" penwidth=1.6 fontname="DejaVu Sans" fontsize=12 margin="0.15,0.08" label="Administrator"];
+  "PAX_1.3" [shape=box style=filled fillcolor="#FFF4C2" color="#000000" penwidth=1.6 fontname="DejaVu Sans" fontsize=12 margin="0.15,0.08" label="Passenger"];
+  "STF_1.3" [shape=box style=filled fillcolor="#FFF4C2" color="#000000" penwidth=1.6 fontname="DejaVu Sans" fontsize=12 margin="0.15,0.08" label="Check-in Staff"];
+  "ADM_1.3" [shape=box style=filled fillcolor="#FFF4C2" color="#000000" penwidth=1.6 fontname="DejaVu Sans" fontsize=12 margin="0.15,0.08" label="Administrator"];
+  "ADM_1.4" [shape=box style=filled fillcolor="#FFF4C2" color="#000000" penwidth=1.6 fontname="DejaVu Sans" fontsize=12 margin="0.15,0.08" label="Administrator"];
+  "PAX_1.1" -> "1.1" [label="Registration details"];
+  "PAX_1.1" -> "1.1" [label="Registration confirmation" dir=back];
+  "1.1" -> "D1" [label="Existing usernames" dir=back];
+  "1.1" -> "D1" [label="User record"];
+  "ADM_1.2" -> "1.2" [label="Staff account details"];
+  "1.2" -> "D1" [label="Existing usernames" dir=back];
+  "1.2" -> "D1" [label="User record"];
+  "1.3" -> "PAX_1.3" [label="Login credentials" dir=back];
+  "1.3" -> "STF_1.3" [label="Login credentials" dir=back];
+  "1.3" -> "ADM_1.3" [label="Login credentials" dir=back];
+  "D1" -> "1.3" [label="Stored credentials"];
+  "1.3" -> "PAX_1.3" [label="Authentication result"];
+  "1.3" -> "STF_1.3" [label="Authentication result"];
+  "1.3" -> "ADM_1.3" [label="Authentication result"];
+  "D1" -> "1.4" [label="User record"];
+  "1.4" -> "ADM_1.4" [label="User list"];
+  "1.1" -> "1.2" [style=invis weight=10];
+  "1.3" -> "1.4" [style=invis weight=10];
+  { rank=same; "PAX_1.1"; "ADM_1.2"; }
+  { rank=same; "1.1"; "1.2"; }
+  { rank=same; "D1"; }
+  { rank=same; "1.3"; "1.4"; }
+  { rank=same; "PAX_1.3"; "STF_1.3"; "ADM_1.3"; "ADM_1.4"; }
+}

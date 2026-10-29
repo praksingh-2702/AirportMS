@@ -1,0 +1,20 @@
+@startuml
+!include _style.iuml
+title State Chart - Flight (FLIGHT_TRANSITIONS)
+[*] --> SCHEDULED : add_flight()
+SCHEDULED --> DELAYED : change_status(DELAYED)
+DELAYED --> SCHEDULED : change_status(SCHEDULED)
+SCHEDULED --> BOARDING : change_status(BOARDING)
+DELAYED --> BOARDING : change_status(BOARDING)
+BOARDING --> DELAYED : change_status(DELAYED)
+BOARDING --> DEPARTED : change_status(DEPARTED)
+SCHEDULED --> CANCELLED : cancel_flight()\n/ cancel all bookings, free gate
+DELAYED --> CANCELLED : cancel_flight()\n/ cancel all bookings, free gate
+DEPARTED --> [*]
+CANCELLED --> [*]
+SCHEDULED : bookable, editable
+DELAYED : bookable, editable
+BOARDING : not bookable
+DEPARTED : final
+CANCELLED : final
+@enduml

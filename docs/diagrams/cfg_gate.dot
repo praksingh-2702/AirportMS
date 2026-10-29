@@ -1,0 +1,27 @@
+digraph "cfg_gate" {
+  graph [fontname="DejaVu Sans" pad=0.3 rankdir=TB nodesep=0.35 ranksep=0.35];
+  node [fontname="DejaVu Sans" fontsize=12];
+  edge [fontname="DejaVu Sans" fontsize=10 color="#333333"];
+  labelloc=t label="CFG - FlightService.is_gate_available()" fontsize=13;
+  node [shape=circle style=filled fillcolor="#D9E8FB" width=0.45 fixedsize=true fontsize=11];
+  "1" [fillcolor="#FFF4C2"];
+  "2";
+  "3" [fillcolor="#FFF4C2"];
+  "4" [fillcolor="#FFF4C2"];
+  "5" [fillcolor="#FFF4C2"];
+  "6";
+  "7";
+  "E";
+  "1" -> "E" [label="T: return True"];
+  "1" -> "2" [label="F"];
+  "2" -> "3" [label=""];
+  "3" -> "4" [label="next row"];
+  "3" -> "7" [label="rows done"];
+  "4" -> "3" [label="T: continue"];
+  "4" -> "5" [label="F"];
+  "5" -> "6" [label="T"];
+  "5" -> "3" [label="F"];
+  "6" -> "E" [label="return False"];
+  "7" -> "E" [label="return True"];
+  info [shape=note fixedsize=false fillcolor="#EEEEEE" fontsize=10 label="N = 8, E = 11\nV(G) = E - N + 2 = 5\nV(G) = P + 1 = 5"];
+}

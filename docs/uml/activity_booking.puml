@@ -1,0 +1,43 @@
+@startuml
+!include _style.iuml
+title Activity Diagram - Book Ticket
+|Passenger|
+start
+:Log in as passenger;
+:Enter From / To / Date (optional);
+|System|
+if (Search criteria valid?) then (no)
+  :Show validation error;
+  |Passenger|
+  stop
+else (yes)
+endif
+:Fetch SCHEDULED/DELAYED future flights;
+:Compute seats left for each flight;
+:Display flight list;
+|Passenger|
+:Select a flight;
+|System|
+:Show seat map\n(taken seats disabled);
+|Passenger|
+:Pick a free seat and confirm;
+|System|
+if (Flight still bookable\nand not departed?) then (no)
+  :Show "booking is closed";
+  stop
+endif
+if (Seat valid and still free?) then (no)
+  :Show "seat already taken";
+  stop
+endif
+if (Passenger already booked\non this flight?) then (yes)
+  :Show "you already hold a booking";
+  stop
+endif
+:Generate unique PNR;
+:Save booking (status BOOKED);
+:Display PNR and seat;
+|Passenger|
+:Note PNR;
+stop
+@enduml

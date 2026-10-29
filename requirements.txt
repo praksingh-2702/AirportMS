@@ -1,0 +1,4 @@
+# The application and tests use only the Python standard library (tkinter, sqlite3, unittest).
+# Optional tools:
+coverage>=7.0     # line-coverage report for the tests
+pillow>=10.0      # tools/capture_screenshots.py on Windows/macOS

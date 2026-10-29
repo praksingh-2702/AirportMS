@@ -1,0 +1,33 @@
+@startuml
+!include _style.iuml
+title Activity Diagram - Schedule Flight (Administrator)
+|Administrator|
+start
+:Open Flights tab;
+:Enter flight no., airline, route,\ndeparture, arrival, rows, fare, gate;
+:Click "Add flight";
+|System|
+if (Role = ADMIN?) then (no)
+  :Show "Access denied";
+  stop
+endif
+if (All fields valid?\n(format, future time, duration <= 20 h)) then (no)
+  :Show field-specific error;
+  stop
+endif
+if (Same flight no. already on that date?) then (yes)
+  :Show duplicate error;
+  stop
+endif
+if (Gate given?) then (yes)
+  if (Another active flight at gate\nwithin 60 min?) then (yes)
+    :Show gate conflict error;
+    stop
+  endif
+endif
+:Insert flight (status SCHEDULED);
+:Refresh schedule table;
+|Administrator|
+:See new flight in schedule;
+stop
+@enduml

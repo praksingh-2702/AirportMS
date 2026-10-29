@@ -1,0 +1,79 @@
+@startuml
+!include _style.iuml
+hide empty members
+top to bottom direction
+package "ams.services (control classes)" {
+  class AuthService {
+    -conn : Connection
+    +login(username, password) : User
+    +register_passenger(username, password, full_name, email, phone) : User
+    +create_staff_account(actor, username, password, full_name, email, phone, role) : User
+    +create_initial_admin(...) : User
+    +get_user(user_id) : User
+    +list_users(actor) : List<User>
+  }
+  class FlightService {
+    -conn : Connection
+    +get_flight(flight_id) : Flight
+    +list_flights(statuses) : List<Flight>
+    +booked_count(flight_id) : int
+    +is_gate_available(gate, departure, exclude_flight_id) : bool
+    +add_flight(actor, ...) : Flight
+    +update_flight(actor, flight_id, ...) : Flight
+    +assign_gate(actor, flight_id, gate) : Flight
+    +change_status(actor, flight_id, new_status) : Flight
+    +cancel_flight(actor, flight_id) : int
+  }
+  class BookingService {
+    -conn : Connection
+    -pnr_generator : Callable
+    +search_flights(origin, destination, date) : List<(Flight,int)>
+    +get_taken_seats(flight_id) : Set<str>
+    +book_ticket(actor, flight_id, seat) : Booking
+    +cancel_booking(actor, booking_id) : Booking
+    +get_booking(booking_id) : Booking
+    +list_bookings(actor) : List<BookingDetails>
+  }
+  class CheckInService {
+    -conn : Connection
+    +find_booking(pnr) : BookingDetails
+    +check_in(actor, pnr) : BoardingPass
+    +get_boarding_pass(actor, pnr) : BoardingPass
+    +add_bag(actor, pnr, weight) : Bag
+    +list_bags(pnr) : List<Bag>
+    +baggage_summary(pnr) : (float, int)
+    +update_bag_status(actor, bag_id, new_status) : Bag
+  }
+  note bottom of CheckInService
+    module-level pure function in the same file:
+    compute_excess_fee(total_kg) : int
+  end note
+}
+package "ams (utility modules)" {
+  class validators <<module>> {
+    +parse_seat(value, rows) : str
+    +validate_bag_weight(value) : float
+    +validate_flight_no(value) : str
+    +validate_route(o, d) : (str,str)
+    +validate_gate(value) : str
+    +...()
+  }
+  class access <<module>> {
+    +require_role(actor, *roles) : User
+  }
+  class security <<module>> {
+    +hash_password(pw, salt) : (str,str)
+    +verify_password(pw, hash, salt) : bool
+  }
+}
+AuthService ..> security
+AuthService ..> validators
+FlightService ..> validators
+BookingService ..> validators
+CheckInService ..> validators
+AuthService ..> access
+FlightService ..> access
+BookingService ..> access
+CheckInService ..> access
+CheckInService ..> BookingService : uses DETAILS_SQL
+@enduml

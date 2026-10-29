@@ -1,0 +1,70 @@
+digraph usecase {
+  graph [rankdir=LR nodesep=0.22 ranksep=1.2 fontname="DejaVu Sans" pad=0.3];
+  edge [dir=none color="#333333" arrowsize=0.8];
+  USR [shape=none image="/home/claude/AirportMS/docs/diagrams/_actor.png" imagepos=tc labelloc=b height=1.9 width=1.0 fontname="DejaVu Sans" fontsize=13 label="User"];
+  PAX [shape=none image="/home/claude/AirportMS/docs/diagrams/_actor.png" imagepos=tc labelloc=b height=1.9 width=1.0 fontname="DejaVu Sans" fontsize=13 label="Passenger"];
+  STF [shape=none image="/home/claude/AirportMS/docs/diagrams/_actor.png" imagepos=tc labelloc=b height=1.9 width=1.0 fontname="DejaVu Sans" fontsize=13 label="Check-in Staff"];
+  ADM [shape=none image="/home/claude/AirportMS/docs/diagrams/_actor.png" imagepos=tc labelloc=b height=1.9 width=1.0 fontname="DejaVu Sans" fontsize=13 label="Administrator"];
+  subgraph cluster_sys { label="Airport Management System" fontname="DejaVu Sans" fontsize=15 style=rounded color="#333333" penwidth=1.5;
+    subgraph cluster_m0 { label="Accounts" fontname="DejaVu Sans" fontsize=12 style="dashed,rounded" color="#888888";
+      UC01 [shape=ellipse style=filled fillcolor="#D9E8FB" color="#333333" fontname="DejaVu Sans" fontsize=12 margin="0.12,0.05" label="Login"];
+      UC02 [shape=ellipse style=filled fillcolor="#D9E8FB" color="#333333" fontname="DejaVu Sans" fontsize=12 margin="0.12,0.05" label="Logout"];
+      UC03 [shape=ellipse style=filled fillcolor="#D9E8FB" color="#333333" fontname="DejaVu Sans" fontsize=12 margin="0.12,0.05" label="Register Account"];
+      UC04 [shape=ellipse style=filled fillcolor="#D9E8FB" color="#333333" fontname="DejaVu Sans" fontsize=12 margin="0.12,0.05" label="Create Staff Account"];
+      UC05 [shape=ellipse style=filled fillcolor="#D9E8FB" color="#333333" fontname="DejaVu Sans" fontsize=12 margin="0.12,0.05" label="View Users"];
+    }
+    subgraph cluster_m1 { label="Flight Scheduling" fontname="DejaVu Sans" fontsize=12 style="dashed,rounded" color="#888888";
+      UC17 [shape=ellipse style=filled fillcolor="#D9E8FB" color="#333333" fontname="DejaVu Sans" fontsize=12 margin="0.12,0.05" label="View Flight Schedule"];
+      UC18 [shape=ellipse style=filled fillcolor="#D9E8FB" color="#333333" fontname="DejaVu Sans" fontsize=12 margin="0.12,0.05" label="Add / Update Flight"];
+      UC19 [shape=ellipse style=filled fillcolor="#D9E8FB" color="#333333" fontname="DejaVu Sans" fontsize=12 margin="0.12,0.05" label="Assign Gate"];
+      UC20 [shape=ellipse style=filled fillcolor="#D9E8FB" color="#333333" fontname="DejaVu Sans" fontsize=12 margin="0.12,0.05" label="Change Flight Status"];
+      UC21 [shape=ellipse style=filled fillcolor="#D9E8FB" color="#333333" fontname="DejaVu Sans" fontsize=12 margin="0.12,0.05" label="Cancel Flight"];
+      UC22 [shape=ellipse style=filled fillcolor="#D9E8FB" color="#333333" fontname="DejaVu Sans" fontsize=12 margin="0.12,0.05" label="Check Gate Availability"];
+    }
+    subgraph cluster_m2 { label="Booking" fontname="DejaVu Sans" fontsize=12 style="dashed,rounded" color="#888888";
+      UC06 [shape=ellipse style=filled fillcolor="#D9E8FB" color="#333333" fontname="DejaVu Sans" fontsize=12 margin="0.12,0.05" label="Search Flights"];
+      UC07 [shape=ellipse style=filled fillcolor="#D9E8FB" color="#333333" fontname="DejaVu Sans" fontsize=12 margin="0.12,0.05" label="Book Ticket"];
+      UC08 [shape=ellipse style=filled fillcolor="#D9E8FB" color="#333333" fontname="DejaVu Sans" fontsize=12 margin="0.12,0.05" label="Select Seat"];
+      UC09 [shape=ellipse style=filled fillcolor="#D9E8FB" color="#333333" fontname="DejaVu Sans" fontsize=12 margin="0.12,0.05" label="Cancel Booking"];
+      UC10 [shape=ellipse style=filled fillcolor="#D9E8FB" color="#333333" fontname="DejaVu Sans" fontsize=12 margin="0.12,0.05" label="View All Bookings"];
+    }
+    subgraph cluster_m3 { label="Check-in & Baggage" fontname="DejaVu Sans" fontsize=12 style="dashed,rounded" color="#888888";
+      UC11 [shape=ellipse style=filled fillcolor="#D9E8FB" color="#333333" fontname="DejaVu Sans" fontsize=12 margin="0.12,0.05" label="Check In Passenger"];
+      UC12 [shape=ellipse style=filled fillcolor="#D9E8FB" color="#333333" fontname="DejaVu Sans" fontsize=12 margin="0.12,0.05" label="Generate Boarding Pass"];
+      UC13 [shape=ellipse style=filled fillcolor="#D9E8FB" color="#333333" fontname="DejaVu Sans" fontsize=12 margin="0.12,0.05" label="View Boarding Pass"];
+      UC14 [shape=ellipse style=filled fillcolor="#D9E8FB" color="#333333" fontname="DejaVu Sans" fontsize=12 margin="0.12,0.05" label="Add Bag"];
+      UC15 [shape=ellipse style=filled fillcolor="#D9E8FB" color="#333333" fontname="DejaVu Sans" fontsize=12 margin="0.12,0.05" label="Generate Bag Tag"];
+      UC16 [shape=ellipse style=filled fillcolor="#D9E8FB" color="#333333" fontname="DejaVu Sans" fontsize=12 margin="0.12,0.05" label="Update Bag Status"];
+    }
+  }
+  PAX -> UC03;
+  PAX -> UC06;
+  PAX -> UC07;
+  PAX -> UC09;
+  PAX -> UC13;
+  STF -> UC10;
+  STF -> UC11;
+  STF -> UC14;
+  STF -> UC16;
+  USR -> UC01;
+  USR -> UC02;
+  USR -> UC17;
+  UC04 -> ADM;
+  UC05 -> ADM;
+  UC09 -> ADM;
+  UC10 -> ADM;
+  UC11 -> ADM;
+  UC18 -> ADM;
+  UC19 -> ADM;
+  UC20 -> ADM;
+  UC21 -> ADM;
+  UC07 -> UC08 [dir=forward style=dashed label="«include»" fontname="DejaVu Sans" fontsize=10 constraint=false];
+  UC11 -> UC12 [dir=forward style=dashed label="«include»" fontname="DejaVu Sans" fontsize=10 constraint=false];
+  UC14 -> UC15 [dir=forward style=dashed label="«include»" fontname="DejaVu Sans" fontsize=10 constraint=false];
+  UC18 -> UC22 [dir=forward style=dashed label="«include»" fontname="DejaVu Sans" fontsize=10 constraint=false];
+  UC19 -> UC22 [dir=forward style=dashed label="«include»" fontname="DejaVu Sans" fontsize=10 constraint=false];
+  UC21 -> UC09 [dir=forward style=dashed label="«include»" fontname="DejaVu Sans" fontsize=10 constraint=false];
+  USR -> PAX [dir=back arrowtail=onormal arrowsize=1.2 constraint=false];
+  USR -> STF [dir=back arrowtail=onormal arrowsize=1.2 constraint=false];
+  ADM -> USR [dir=forward arrowhead=onormal arrowsize=1.2 constraint=false];
+}
