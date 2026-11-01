@@ -1,11 +1,11 @@
 @startuml
 !include _style.iuml
-title State Chart - Booking
+hide empty description
 [*] --> BOOKED : book_ticket()\n[seat free, flight bookable]
-BOOKED --> CHECKED_IN : check_in()\n[48 h >= time to dep >= 45 min]\n/ assign boarding_seq
-BOOKED --> CANCELLED : cancel_booking()\n[before departure]
-BOOKED --> CANCELLED : cancel_flight()
-CHECKED_IN --> CANCELLED : cancel_flight()
+BOOKED --> CHECKED_IN : check_in()\n[paid, 48 h >= time to dep >= 45 min]\n/ assign boarding_seq
+BOOKED --> CANCELLED : cancel_booking()\n[before departure]\n/ refund
+BOOKED --> CANCELLED : cancel_flight()\n/ full refund
+CHECKED_IN --> CANCELLED : cancel_flight()\n/ full refund
 CHECKED_IN --> [*]
 CANCELLED --> [*]
 BOOKED : seat held

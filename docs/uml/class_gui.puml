@@ -1,84 +1,107 @@
 @startuml
 !include _style.iuml
 hide empty members
-package "ams.gui (boundary classes)" {
+package "ams.gui (presentation layer)" {
   class AirportApp {
-    +ctx : AppContext
     +show_login()
     +show_dashboard(user)
+    +refresh_stats()
   }
   class AppContext {
     +auth : AuthService
     +flights : FlightService
+    +schedule : ScheduleService
     +bookings : BookingService
+    +payments : PaymentService
     +checkin : CheckInService
     +user : User
     +now() : datetime
+    +stats() : list
+  }
+  class Header
+  class TabHost {
+    +add(view, text)
+    +select(view)
+  }
+  class StatCard {
+    +set(value)
   }
   class LoginView {
     +login()
     +open_register()
   }
-  class RegisterDialog {
-    +submit()
-  }
+  class RegisterDialog
   class FlightView {
-    +refresh()
-    +add()
-    +update()
-    +assign_gate()
-    +set_status()
-    +cancel()
+    +refresh(quiet)
+    +add()  +update()  +cancel()
+  }
+  class ScheduleView {
+    +generate()
+    +add()  +toggle()
   }
   class BookingView {
     +search()
     +book()
+    +pay_selected()
+    +download_receipt()
     +cancel()
-    +refresh_bookings()
   }
   class SeatMap {
     +pick(seat)
     +confirm()
   }
+  class PaymentDialog {
+    +pay()
+    +download_receipt()
+  }
   class CheckInView {
     +lookup()
     +check_in()
+    +download()
     +add_bag()
-    +update_bag()
   }
   class BoardingPassView {
     +refresh()
+    +download()
   }
-  class UsersView {
-    +refresh()
-    +create()
+  class UsersView
+  class DataTable {
+    +load(rows)
+    +selected_id()
   }
-  class DataTable
   class FormPanel
+  class DateEntry
+  class CalendarPopup
+  class Button
 }
-package "ams.services" {
-  class AuthService
-  class FlightService
-  class BookingService
-  class CheckInService
-}
-AirportApp *-- "1" AppContext
-AirportApp ..> LoginView : creates
-AirportApp ..> FlightView : creates (ROLE_TABS)
-AirportApp ..> BookingView
-AirportApp ..> CheckInView
-AirportApp ..> BoardingPassView
-AirportApp ..> UsersView
+AirportApp *-- AppContext
+AirportApp *-- Header
+AirportApp *-- TabHost
+AirportApp *-- "4" StatCard
+TabHost o-- "*" FlightView
+TabHost o-- "*" ScheduleView
+TabHost o-- "*" BookingView
+TabHost o-- "*" CheckInView
+TabHost o-- "*" BoardingPassView
+TabHost o-- "*" UsersView
+AirportApp ..> LoginView : shows
 LoginView ..> RegisterDialog
-BookingView ..> SeatMap
-FlightView --> AppContext
-BookingView --> AppContext
-CheckInView --> AppContext
-UsersView --> AppContext
+BookingView ..> SeatMap : opens
+BookingView ..> PaymentDialog : opens
 FlightView *-- DataTable
+BookingView *-- DataTable
+ScheduleView *-- DataTable
+CheckInView *-- DataTable
+BoardingPassView *-- DataTable
 FlightView *-- FormPanel
-AppContext *-- AuthService
-AppContext *-- FlightService
-AppContext *-- BookingService
-AppContext *-- CheckInService
+ScheduleView *-- FormPanel
+UsersView *-- FormPanel
+FormPanel o-- DateEntry
+FlightView *-- DateEntry
+BookingView *-- DateEntry
+DateEntry ..> CalendarPopup : opens
+FlightView ..> AppContext : uses services
+BookingView ..> AppContext
+CheckInView ..> AppContext
+PaymentDialog ..> AppContext
 @enduml

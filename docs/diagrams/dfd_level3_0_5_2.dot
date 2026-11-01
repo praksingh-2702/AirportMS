@@ -1,0 +1,39 @@
+digraph "Level 3 - 0.5.2" {
+  graph [rankdir=TB bgcolor="#FFFFFF" fontname="DejaVu Sans" pad=0.3 splines=true nodesep=0.5 ranksep=1.1 newrank=true];
+  node [fontname="DejaVu Sans" fontsize=12 color="#000000" fillcolor="#D9E8FB" style=filled penwidth=1.3];
+  edge [fontname="DejaVu Sans" fontsize=10 color="#444444" arrowsize=0.7];
+  "0.5.2.1" [shape=circle style=filled fillcolor="#D9E8FB" penwidth=1.6 fixedsize=true width=1.5 fontsize=12 label="0.5.2.1\nCheck\nBooking Status"];
+  "0.5.2.2" [shape=circle style=filled fillcolor="#D9E8FB" penwidth=1.6 fixedsize=true width=1.5 fontsize=12 label="0.5.2.2\nCheck\nFlight Status"];
+  "0.5.2.3" [shape=circle style=filled fillcolor="#D9E8FB" penwidth=1.6 fixedsize=true width=1.5 fontsize=12 label="0.5.2.3\nCheck\nPayment Status"];
+  "0.5.2.4" [shape=circle style=filled fillcolor="#D9E8FB" penwidth=1.6 fixedsize=true width=1.5 fontsize=12 label="0.5.2.4\nCheck Opening\nTime (48 h)"];
+  "0.5.2.5" [shape=circle style=filled fillcolor="#D9E8FB" penwidth=1.6 fixedsize=true width=1.5 fontsize=12 label="0.5.2.5\nCheck Closing\nTime (45 min)"];
+  "0.5.1" [shape=circle style="filled,dashed" fillcolor="#D9E8FB" penwidth=1.6 fixedsize=true width=1.5 fontsize=12 label="0.5.1\nRetrieve\nBooking"];
+  "0.5.3" [shape=circle style="filled,dashed" fillcolor="#D9E8FB" penwidth=1.6 fixedsize=true width=1.5 fontsize=12 label="0.5.3\nAssign\nBoarding Seq."];
+  "D6" [shape=plain style=none fontsize=12 label=<<TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="5"><TR><TD SIDES="TBR" BGCOLOR="#EEEEEE"><B>D6</B></TD><TD SIDES="TB" WIDTH="120" ALIGN="LEFT">Payments</TD></TR></TABLE>>];
+  "STF_0.5.2.1" [shape=box style=filled fillcolor="#FFF4C2" penwidth=1.6 margin="0.16,0.09" fontsize=13 label="Check-in Staff"];
+  "STF_0.5.2.2" [shape=box style=filled fillcolor="#FFF4C2" penwidth=1.6 margin="0.16,0.09" fontsize=13 label="Check-in Staff"];
+  "STF_0.5.2.3" [shape=box style=filled fillcolor="#FFF4C2" penwidth=1.6 margin="0.16,0.09" fontsize=13 label="Check-in Staff"];
+  "STF_0.5.2.4" [shape=box style=filled fillcolor="#FFF4C2" penwidth=1.6 margin="0.16,0.09" fontsize=13 label="Check-in Staff"];
+  "STF_0.5.2.5" [shape=box style=filled fillcolor="#FFF4C2" penwidth=1.6 margin="0.16,0.09" fontsize=13 label="Check-in Staff"];
+  "0.5.1" -> "0.5.2.1" [label="Booking details" constraint=false];
+  "0.5.2.1" -> "0.5.2.2" [label="Active booking" constraint=false];
+  "0.5.2.2" -> "0.5.2.3" [label="Operating flight" constraint=false];
+  "0.5.2.3" -> "D6" [label="Payment record" dir=back];
+  "0.5.2.3" -> "0.5.2.4" [label="Paid booking" constraint=false];
+  "0.5.2.4" -> "0.5.2.5" [label="Opened booking" constraint=false];
+  "0.5.2.5" -> "0.5.3" [label="Eligible booking" constraint=false];
+  "STF_0.5.2.1" -> "0.5.2.1" [label="Rejection reason" dir=back];
+  "STF_0.5.2.2" -> "0.5.2.2" [label="Rejection reason" dir=back];
+  "STF_0.5.2.3" -> "0.5.2.3" [label="Rejection reason" dir=back];
+  "STF_0.5.2.4" -> "0.5.2.4" [label="Rejection reason" dir=back];
+  "STF_0.5.2.5" -> "0.5.2.5" [label="Rejection reason" dir=back];
+  "0.5.1" -> "0.5.2.1" [style=invis weight=10];
+  "0.5.2.1" -> "0.5.2.2" [style=invis weight=10];
+  "0.5.2.2" -> "0.5.2.3" [style=invis weight=10];
+  "0.5.2.3" -> "0.5.2.4" [style=invis weight=10];
+  "0.5.2.4" -> "0.5.2.5" [style=invis weight=10];
+  "0.5.2.5" -> "0.5.3" [style=invis weight=10];
+  { rank=same; "STF_0.5.2.1"; "STF_0.5.2.2"; "STF_0.5.2.3"; "STF_0.5.2.4"; "STF_0.5.2.5"; }
+  { rank=same; "0.5.2.1"; "0.5.2.2"; "0.5.2.3"; "0.5.2.4"; "0.5.2.5"; "0.5.1"; "0.5.3"; }
+  { rank=same; "D6"; }
+}

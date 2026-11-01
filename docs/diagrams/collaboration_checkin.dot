@@ -1,22 +1,18 @@
 digraph "collaboration_checkin" {
-  graph [fontname="DejaVu Sans" pad=0.3 rankdir=TB nodesep=0.6 ranksep=1.0];
-  node [fontname="DejaVu Sans" fontsize=12];
-  edge [fontname="DejaVu Sans" fontsize=10 color="#333333"];
-  node [shape=box style=filled fillcolor="#D9E8FB" penwidth=1.3 fontsize=13];
-  edge [fontsize=12];
+  graph [rankdir=TB bgcolor="#FFFFFF" fontname="DejaVu Sans" pad=0.3 splines=true nodesep=0.6 ranksep=1.0];
+  node [fontname="DejaVu Sans" fontsize=12 color="#000000" fillcolor="#D9E8FB" style=filled penwidth=1.3];
+  edge [fontname="DejaVu Sans" fontsize=10 color="#444444" arrowsize=0.7];
+  node [shape=box fontsize=13]; edge [fontsize=12 dir=none];
   labelloc=t label="Collaboration Diagram - Check In Passenger" fontsize=16;
-  actor [shape=none image="/home/claude/AirportMS/docs/diagrams/_actor.png" labelloc=b height=1.6 fillcolor=white label="Check-in Staff"];
-  cv [ label=<<U>:CheckInView</U>>];
-  cs [ label=<<U>:CheckInService</U>>];
-  ac [ label=<<U>access</U>>];
-  va [ label=<<U>validators</U>>];
-  db [ label=<<U>:SQLite DB</U>>];
-  bp [ label=<<U>:BoardingPass</U>>];
-  actor -> cv [dir=none label="1: enter PNR, Check in →\n3: show boarding pass ←"];
-  cv -> cs [dir=none label="2: check_in(user, pnr, now) →\n2.8: BoardingPass ←"];
-  cs -> ac [dir=none label="2.1: require_role(user, STAFF, ADMIN) →"];
-  cs -> va [dir=none label="2.2: validate_pnr(pnr) →"];
-  cs -> db [dir=none label="2.3: SELECT booking+flight+user →\n2.4: SELECT MAX(boarding_seq)+1 →\n2.5: UPDATE booking CHECKED_IN →\n2.6: SELECT booking (get_boarding_pass) →"];
-  cs -> bp [dir=none label="2.7: create BoardingPass(...) →"];
-  cv -> bp [dir=none label="2.9: as_text() →"];
+  actor [shape=none style=none image="/tmp/claude-0/-home-claude/175e18c3-3ae4-54e1-bc52-2203469a8b02/scratchpad/clean/AirportMS/docs/diagrams/_actor.png" labelloc=b height=1.6 label="Check-in Staff"];
+  cv [label=<<U>:CheckInView</U>>];
+  cs [label=<<U>:CheckInService</U>>];
+  db [label=<<U>:SQLite DB</U>>];
+  bp [label=<<U>:BoardingPass</U>>];
+  pdf [label=<<U>boarding_pdf</U>>];
+  actor -> cv [label="1: enter PNR, Check in →\n3: show pass ←\n4: Download boarding pass (PDF) →"];
+  cv -> cs [label="2: check_in(user, pnr, now) →\n2.4: boarding pass ←"];
+  cs -> db [label="2.1: SELECT booking + payment →\n2.2: UPDATE booking CHECKED_IN →"];
+  cs -> bp [label="2.3: create BoardingPass(...) →"];
+  cv -> pdf [label="5: render_boarding_pass(pass) →\n6: PDF bytes ←"];
 }

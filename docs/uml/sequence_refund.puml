@@ -1,0 +1,26 @@
+@startuml
+!include _style.iuml
+participant ":BookingView" as BV
+participant ":PaymentService" as PS
+participant ":BookingService" as BS
+participant ":payments_core" as PC
+database ":Database" as DB
+[-> BV : cancel()
+activate BV
+BV -> PS : refund_quote(booking_id, now)
+PS -> DB : SELECT payment, departure
+PS --> BV : RefundQuote
+BV --> BV : confirm dialog shows refund and charges
+BV -> BS : cancel_booking(user, booking_id, now)
+activate BS
+BS -> DB : UPDATE booking CANCELLED
+BS -> PC : refund_booking(booking_id, now, full=False)
+activate PC
+PC -> PC : quote_refund(payment, hours)
+PC -> DB : UPDATE payment REFUNDED
+deactivate PC
+BS --> BV : Booking
+deactivate BS
+BV --> BV : show "refunded to (instrument)"
+deactivate BV
+@enduml

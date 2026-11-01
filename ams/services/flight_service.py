@@ -8,6 +8,7 @@ from ..config import GATE_BUFFER_MINUTES, SEAT_COLUMNS
 from ..errors import BusinessRuleError, NotFoundError, ValidationError
 from ..models import BookingStatus, Flight, FlightStatus, Role, fmt_dt, to_dt
 from .. import validators as v
+from ..payments_core import refund_flight
 
 # Flights that still occupy a gate
 ACTIVE_STATUSES = (FlightStatus.SCHEDULED, FlightStatus.DELAYED, FlightStatus.BOARDING)
@@ -33,14 +34,42 @@ class FlightService:
             raise NotFoundError(f"Flight with id {flight_id} not found.")
         return Flight.from_row(row)
 
-    def list_flights(self, statuses: Optional[Iterable[FlightStatus]] = None) -> List[Flight]:
-        sql, params = "SELECT * FROM flights", []
+    @staticmethod
+    def _filters(statuses, date, search):
+        clauses, params = [], []
         if statuses:
             statuses = [FlightStatus(s).value for s in statuses]
-            sql += f" WHERE status IN ({','.join('?' * len(statuses))})"
-            params = statuses
-        rows = self.conn.execute(sql + " ORDER BY departure", params).fetchall()
-        return [Flight.from_row(r) for r in rows]
+            clauses.append(f"status IN ({','.join('?' * len(statuses))})")
+            params += statuses
+        day = v.parse_date(date)
+        if day:
+            clauses.append("substr(departure,1,10) = ?")
+            params.append(day)
+        text = (search or "").strip().upper()
+        if text:
+            clauses.append("(flight_no LIKE ? OR origin = ? OR destination = ? OR upper(airline) LIKE ?)")
+            params += [f"%{text}%", text, text, f"%{text}%"]
+        return (" WHERE " + " AND ".join(clauses)) if clauses else "", params
+
+    def list_flights(self, statuses: Optional[Iterable[FlightStatus]] = None, date=None, search=None,
+                     limit: Optional[int] = None) -> List[Flight]:
+        """Flights in departure order. Optional filters: status list, one date (YYYY-MM-DD), free text
+        (flight number, airline or airport code) and a row limit."""
+        where, params = self._filters(statuses, date, search)
+        sql = "SELECT * FROM flights" + where + " ORDER BY departure"
+        if limit:
+            sql += " LIMIT ?"
+            params = params + [int(limit)]
+        return [Flight.from_row(r) for r in self.conn.execute(sql, params).fetchall()]
+
+    def count_flights(self, statuses=None, date=None, search=None) -> int:
+        where, params = self._filters(statuses, date, search)
+        return self.conn.execute("SELECT COUNT(*) FROM flights" + where, params).fetchone()[0]
+
+    def booked_counts(self) -> dict:
+        """flight_id -> number of active bookings, for every flight, in one query."""
+        return {r[0]: r[1] for r in self.conn.execute(
+            "SELECT flight_id, COUNT(*) FROM bookings WHERE status <> 'CANCELLED' GROUP BY flight_id")}
 
     def booked_count(self, flight_id: int) -> int:
         return self.conn.execute(
@@ -177,12 +206,14 @@ class FlightService:
             self.conn.commit()
         return self.get_flight(flight_id)
 
-    def cancel_flight(self, actor, flight_id: int) -> int:
-        """Cancel the flight and all its active bookings. Returns bookings cancelled."""
+    def cancel_flight(self, actor, flight_id: int, now: Optional[datetime] = None) -> int:
+        """Cancel the flight and all its active bookings (paid ones are refunded in full).
+        Returns bookings cancelled."""
         require_role(actor, Role.ADMIN)
         flight = self.get_flight(flight_id)
         if FlightStatus.CANCELLED not in FLIGHT_TRANSITIONS[flight.status]:
             raise BusinessRuleError(f"Flight {flight.flight_no} is {flight.status.value} and cannot be cancelled.")
+        refund_flight(self.conn, flight_id, now or datetime.now())
         cur = self.conn.execute(
             "UPDATE bookings SET status = ? WHERE flight_id = ? AND status <> ?",
             (BookingStatus.CANCELLED.value, flight_id, BookingStatus.CANCELLED.value))

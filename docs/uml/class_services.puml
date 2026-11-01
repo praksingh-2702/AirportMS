@@ -1,79 +1,103 @@
 @startuml
 !include _style.iuml
 hide empty members
-top to bottom direction
-package "ams.services (control classes)" {
+package "ams.services (one class per module)" {
   class AuthService {
-    -conn : Connection
     +login(username, password) : User
-    +register_passenger(username, password, full_name, email, phone) : User
-    +create_staff_account(actor, username, password, full_name, email, phone, role) : User
-    +create_initial_admin(...) : User
-    +get_user(user_id) : User
-    +list_users(actor) : List<User>
+    +register_passenger(...) : User
+    +create_staff_account(actor, ...) : User
+    +list_users(actor) : list
   }
   class FlightService {
-    -conn : Connection
-    +get_flight(flight_id) : Flight
-    +list_flights(statuses) : List<Flight>
-    +booked_count(flight_id) : int
-    +is_gate_available(gate, departure, exclude_flight_id) : bool
+    +list_flights(statuses, date, search, limit) : list
+    +count_flights(...) : int
+    +booked_counts() : dict
     +add_flight(actor, ...) : Flight
-    +update_flight(actor, flight_id, ...) : Flight
-    +assign_gate(actor, flight_id, gate) : Flight
-    +change_status(actor, flight_id, new_status) : Flight
-    +cancel_flight(actor, flight_id) : int
+    +update_flight(actor, id, ...) : Flight
+    +assign_gate(actor, id, gate) : Flight
+    +change_status(actor, id, status) : Flight
+    +cancel_flight(actor, id, now) : int
+    +is_gate_available(gate, departure) : bool
+  }
+  class ScheduleService {
+    +list_templates() : list
+    +add_template(actor, ...) : FlightTemplate
+    +set_active(actor, id, active) : FlightTemplate
+    +seed_default_network() : int
+    +generate_flights(actor, days, now) : GenerationResult
+    +ensure_schedule(days, now) : GenerationResult
+  }
+  class GatePlanner {
+    +assign(departure) : str
   }
   class BookingService {
-    -conn : Connection
-    -pnr_generator : Callable
-    +search_flights(origin, destination, date) : List<(Flight,int)>
-    +get_taken_seats(flight_id) : Set<str>
-    +book_ticket(actor, flight_id, seat) : Booking
-    +cancel_booking(actor, booking_id) : Booking
-    +get_booking(booking_id) : Booking
-    +list_bookings(actor) : List<BookingDetails>
+    +search_flights(origin, dest, date, now, limit) : list
+    +get_taken_seats(flight_id) : set
+    +book_ticket(actor, flight_id, seat, now) : Booking
+    +cancel_booking(actor, id, now) : Booking
+    +list_bookings(actor) : list
+  }
+  class PaymentService {
+    +quote(base_fare) : FareBreakdown
+    +book_and_pay(actor, flight_id, seat, method, details, now) : tuple
+    +pay_booking(actor, id, method, details, now) : Payment
+    +refund_quote(id, now) : RefundQuote
+    +receipt_file(actor, id) : tuple
+    +migrate_legacy(now) : int
+    +revenue() : int
   }
   class CheckInService {
-    -conn : Connection
     +find_booking(pnr) : BookingDetails
-    +check_in(actor, pnr) : BoardingPass
+    +check_in(actor, pnr, now) : BoardingPass
     +get_boarding_pass(actor, pnr) : BoardingPass
-    +add_bag(actor, pnr, weight) : Bag
-    +list_bags(pnr) : List<Bag>
-    +baggage_summary(pnr) : (float, int)
-    +update_bag_status(actor, bag_id, new_status) : Bag
+    +boarding_pass_file(actor, pnr) : tuple
+    +add_bag(actor, pnr, weight, now) : Bag
+    +update_bag_status(actor, id, status, now) : Bag
+    +baggage_summary(pnr) : tuple
   }
-  note bottom of CheckInService
-    module-level pure function in the same file:
-    compute_excess_fee(total_kg) : int
-  end note
 }
-package "ams (utility modules)" {
-  class validators <<module>> {
-    +parse_seat(value, rows) : str
-    +validate_bag_weight(value) : float
-    +validate_flight_no(value) : str
-    +validate_route(o, d) : (str,str)
-    +validate_gate(value) : str
-    +...()
+package "helper modules" {
+  class payments_core <<module>> {
+    +fare_breakdown(base_fare)
+    +quote_refund(payment, hours, full)
+    +refund_booking(conn, id, now, full, reason)
+    +refund_flight(conn, flight_id, now)
+    +record_payment(conn, ...)
   }
+  class gateway <<module>> {
+    +authorize(method, details, amount) : GatewayResult
+  }
+  class boarding_pdf <<module>> {
+    +render_boarding_pass(pass) : bytes
+    +code128_widths(text) : list
+  }
+  class receipt_pdf <<module>> {
+    +render_receipt(payment, ...) : bytes
+  }
+  class validators <<module>>
   class access <<module>> {
-    +require_role(actor, *roles) : User
-  }
-  class security <<module>> {
-    +hash_password(pw, salt) : (str,str)
-    +verify_password(pw, hash, salt) : bool
+    +require_role(actor, roles)
   }
 }
-AuthService ..> security
-AuthService ..> validators
-FlightService ..> validators
-BookingService ..> validators
-CheckInService ..> validators
+ScheduleService *-- GatePlanner
+PaymentService o-- BookingService : uses >
+PaymentService ..> gateway
+PaymentService ..> payments_core
+PaymentService ..> receipt_pdf
+BookingService ..> payments_core : refund
+FlightService ..> payments_core : refund all
+CheckInService ..> boarding_pdf
+CheckInService ..> BookingService : DETAILS_SQL
 AuthService ..> access
 FlightService ..> access
+ScheduleService ..> access
 BookingService ..> access
+PaymentService ..> access
 CheckInService ..> access
-CheckInService ..> BookingService : uses DETAILS_SQL
+AuthService ..> validators
+FlightService ..> validators
+ScheduleService ..> validators
+BookingService ..> validators
+PaymentService ..> validators
+CheckInService ..> validators
 @enduml

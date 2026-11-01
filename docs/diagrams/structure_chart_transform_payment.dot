@@ -1,0 +1,29 @@
+digraph "structure_chart_transform_payment" {
+  graph [rankdir=TB bgcolor="#FFFFFF" fontname="DejaVu Sans" pad=0.3 splines=true nodesep=0.35 ranksep=0.9];
+  node [fontname="DejaVu Sans" fontsize=12 color="#000000" fillcolor="#D9E8FB" style=filled penwidth=1.3];
+  edge [fontname="DejaVu Sans" fontsize=10 color="#444444" arrowsize=0.7];
+  node [shape=box style=filled fillcolor="white" width=1.6];
+  labelloc=t label="Structure Chart 4 - Transform Analysis of DFD 0.8 (Process Payment)" fontsize=14;
+  root [label="Book and Pay\nPaymentService.book_and_pay()" fillcolor="#D9E8FB"];
+  aff [label="Get Valid Payment Details\n_clean(method, details)" fillcolor="#E8F5E9"];
+  card [label="Validate Card Details\nvalidate_card_number/expiry/cvv" fillcolor="white" peripheries=2];
+  upi [label="Validate UPI ID\nvalidate_upi_id()" fillcolor="white" peripheries=2];
+  bank [label="Validate Bank\nvalidate_bank()" fillcolor="white" peripheries=2];
+  res [label="Reserve Seat\nbook_ticket()" fillcolor="white"];
+  auth [label="Authorize Payment\nfare_breakdown()" fillcolor="white"];
+  gw [label="Payment Gateway\ngateway.authorize()" fillcolor="white"];
+  eff [label="Record Payment\nrecord_payment()" fillcolor="white"];
+  rel [label="Release Seat\nDELETE booking" fillcolor="white"];
+  aff_sel [shape=diamond label="" width=0.35 height=0.35 style=filled fillcolor="#FFF4C2"];
+  aff -> aff_sel [arrowhead=none];
+  root -> aff [label="○ method, details ↓\n○ clean_details ↑" arrowsize=0.7];
+  aff_sel -> card [label="○ card details ↓\n○ valid_card ↑" arrowsize=0.7];
+  aff_sel -> upi [label="○ upi_id ↓\n○ upi_id ↑" arrowsize=0.7];
+  aff_sel -> bank [label="○ bank ↓\n○ bank ↑" arrowsize=0.7];
+  root -> res [label="○ flight_id, seat ↓\n○ booking ↑" arrowsize=0.7];
+  root -> auth [label="○ clean_details, fare ↓\n○ result ↑" arrowsize=0.7];
+  auth -> gw [label="○ method, details, amount ↓\n● approved ↑" arrowsize=0.7];
+  root -> eff [label="○ booking, result ↓\n○ payment ↑" arrowsize=0.7];
+  root -> rel [label="○ booking_id ↓" arrowsize=0.7];
+  legend [shape=note fillcolor="#EEEEEE" fontsize=10 label="○ data couple   ● control flag\n↓ passed to called module   ↑ returned to caller\ndouble border = library module"];
+}

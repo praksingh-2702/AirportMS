@@ -5,10 +5,12 @@ from datetime import datetime
 from typing import Callable, List, Optional, Set, Tuple
 
 from ..access import require_role
+from ..config import LIST_LIMIT
 from ..errors import BusinessRuleError, NotFoundError
 from ..models import (Booking, BookingDetails, BookingStatus, Flight, FlightStatus, Role,
                       User, fmt_dt)
 from .. import validators as v
+from ..payments_core import refund_booking
 
 BOOKABLE_STATUSES = (FlightStatus.SCHEDULED, FlightStatus.DELAYED)
 PNR_ALPHABET = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"   # no I, O, 0, 1 (easily confused)
@@ -31,9 +33,9 @@ class BookingService:
 
     # ----- search -----
     def search_flights(self, origin=None, destination=None, date=None,
-                       now: Optional[datetime] = None) -> List[Tuple[Flight, int]]:
-        """Return (flight, seats_left) for bookable future flights matching the filters.
-        Blank filters match everything."""
+                       now: Optional[datetime] = None, limit: int = LIST_LIMIT) -> List[Tuple[Flight, int]]:
+        """Return (flight, seats_left) for bookable future flights matching the filters, earliest first,
+        at most `limit` of them. Blank filters match everything."""
         now = now or datetime.now()
         sql = ("SELECT * FROM flights WHERE status IN (?,?) AND departure > ?")
         params = [BOOKABLE_STATUSES[0].value, BOOKABLE_STATUSES[1].value, fmt_dt(now)]
@@ -47,10 +49,12 @@ class BookingService:
         if day:
             sql += " AND substr(departure,1,10) = ?"
             params.append(day)
+        taken = {r[0]: r[1] for r in self.conn.execute(
+            "SELECT flight_id, COUNT(*) FROM bookings WHERE status <> 'CANCELLED' GROUP BY flight_id")}
         results = []
-        for row in self.conn.execute(sql + " ORDER BY departure", params).fetchall():
+        for row in self.conn.execute(sql + " ORDER BY departure LIMIT ?", params + [int(limit)]).fetchall():
             flight = Flight.from_row(row)
-            results.append((flight, flight.capacity - len(self.get_taken_seats(flight.flight_id))))
+            results.append((flight, flight.capacity - taken.get(flight.flight_id, 0)))
         return results
 
     def get_taken_seats(self, flight_id: int) -> Set[str]:
@@ -112,6 +116,7 @@ class BookingService:
         if dep <= fmt_dt(now):
             raise BusinessRuleError("The flight has already departed.")
         self.conn.execute("UPDATE bookings SET status = 'CANCELLED' WHERE booking_id = ?", (booking_id,))
+        refund_booking(self.conn, booking_id, now, False, "Cancelled by " + ("passenger" if actor.role == Role.PASSENGER else "administrator"))
         self.conn.commit()
         return self.get_booking(booking_id)
 

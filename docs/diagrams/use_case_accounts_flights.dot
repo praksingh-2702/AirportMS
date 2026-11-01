@@ -1,0 +1,55 @@
+digraph "use_case_accounts_flights" {
+  graph [rankdir=LR bgcolor="#FFFFFF" fontname="DejaVu Sans" pad=0.3 splines=true nodesep=0.22 ranksep=1.3];
+  node [fontname="DejaVu Sans" fontsize=12 color="#000000" fillcolor="#D9E8FB" style=filled penwidth=1.3];
+  edge [fontname="DejaVu Sans" fontsize=10 color="#444444" arrowsize=0.7];
+  edge [dir=none arrowsize=0.8];
+  USR [shape=none style="" image="/tmp/claude-0/-home-claude/175e18c3-3ae4-54e1-bc52-2203469a8b02/scratchpad/clean/AirportMS/docs/diagrams/_actor.png" imagepos=tc labelloc=b height=1.9 width=1.0 fontsize=13 label="User"];
+  PAX [shape=none style="" image="/tmp/claude-0/-home-claude/175e18c3-3ae4-54e1-bc52-2203469a8b02/scratchpad/clean/AirportMS/docs/diagrams/_actor.png" imagepos=tc labelloc=b height=1.9 width=1.0 fontsize=13 label="Passenger"];
+  ADM [shape=none style="" image="/tmp/claude-0/-home-claude/175e18c3-3ae4-54e1-bc52-2203469a8b02/scratchpad/clean/AirportMS/docs/diagrams/_actor.png" imagepos=tc labelloc=b height=1.9 width=1.0 fontsize=13 label="Administrator"];
+  subgraph cluster_sys { label="Airport Management System" fontname="DejaVu Sans" fontsize=15 style=rounded color="#333333" penwidth=1.5 bgcolor="#FFFFFF";
+    subgraph cluster_m0 { label="Accounts" fontname="DejaVu Sans" fontsize=12 style=dashed color="#888888";
+      UC01 [shape=ellipse style=filled fillcolor="#D9E8FB" color="#333333" penwidth=1.0 margin="0.14,0.06" fontsize=12 label="Login"];
+      UC02 [shape=ellipse style=filled fillcolor="#D9E8FB" color="#333333" penwidth=1.0 margin="0.14,0.06" fontsize=12 label="Logout"];
+      UC03 [shape=ellipse style=filled fillcolor="#D9E8FB" color="#333333" penwidth=1.0 margin="0.14,0.06" fontsize=12 label="Register Account"];
+      UC04 [shape=ellipse style=filled fillcolor="#D9E8FB" color="#333333" penwidth=1.0 margin="0.14,0.06" fontsize=12 label="Create Staff Account"];
+      UC05 [shape=ellipse style=filled fillcolor="#D9E8FB" color="#333333" penwidth=1.0 margin="0.14,0.06" fontsize=12 label="View Users"];
+    }
+    subgraph cluster_m1 { label="Flight Scheduling" fontname="DejaVu Sans" fontsize=12 style=dashed color="#888888";
+      UC17 [shape=ellipse style=filled fillcolor="#D9E8FB" color="#333333" penwidth=1.0 margin="0.14,0.06" fontsize=12 label="View Flight Schedule"];
+      UC18 [shape=ellipse style=filled fillcolor="#D9E8FB" color="#333333" penwidth=1.0 margin="0.14,0.06" fontsize=12 label="Add / Update Flight"];
+      UC19 [shape=ellipse style=filled fillcolor="#D9E8FB" color="#333333" penwidth=1.0 margin="0.14,0.06" fontsize=12 label="Assign Gate"];
+      UC20 [shape=ellipse style=filled fillcolor="#D9E8FB" color="#333333" penwidth=1.0 margin="0.14,0.06" fontsize=12 label="Change Flight Status"];
+      UC21 [shape=ellipse style=filled fillcolor="#D9E8FB" color="#333333" penwidth=1.0 margin="0.14,0.06" fontsize=12 label="Cancel Flight"];
+      UC22 [shape=ellipse style=filled fillcolor="#D9E8FB" color="#333333" penwidth=1.0 margin="0.14,0.06" fontsize=12 label="Check Gate Availability"];
+    }
+    subgraph cluster_m2 { label="Recurring Schedule" fontname="DejaVu Sans" fontsize=12 style=dashed color="#888888";
+      UC23 [shape=ellipse style=filled fillcolor="#D9E8FB" color="#333333" penwidth=1.0 margin="0.14,0.06" fontsize=12 label="Add Recurring Service"];
+      UC24 [shape=ellipse style=filled fillcolor="#D9E8FB" color="#333333" penwidth=1.0 margin="0.14,0.06" fontsize=12 label="Switch Service On / Off"];
+      UC25 [shape=ellipse style=filled fillcolor="#D9E8FB" color="#333333" penwidth=1.0 margin="0.14,0.06" fontsize=12 label="Generate Flights"];
+    }
+    UC09 [shape=ellipse style="filled,dashed" fillcolor="#D9E8FB" color="#333333" penwidth=1.0 margin="0.14,0.06" fontsize=12 label="Cancel Booking"];
+    UC29 [shape=ellipse style="filled,dashed" fillcolor="#D9E8FB" color="#333333" penwidth=1.0 margin="0.14,0.06" fontsize=12 label="Refund Payment"];
+  }
+  USR -> UC01;
+  USR -> UC02;
+  USR -> UC17;
+  PAX -> UC03;
+  PAX -> UC09;
+  UC04 -> ADM;
+  UC05 -> ADM;
+  UC09 -> ADM;
+  UC18 -> ADM;
+  UC19 -> ADM;
+  UC20 -> ADM;
+  UC21 -> ADM;
+  UC23 -> ADM;
+  UC24 -> ADM;
+  UC25 -> ADM;
+  UC18 -> UC22 [dir=forward style=dashed xlabel="«include»" fontsize=10 constraint=false];
+  UC19 -> UC22 [dir=forward style=dashed xlabel="«include»" fontsize=10 constraint=false];
+  UC25 -> UC22 [dir=forward style=dashed xlabel="«include»" fontsize=10 constraint=false];
+  UC21 -> UC09 [dir=forward style=dashed xlabel="«include»" fontsize=10 constraint=false];
+  UC09 -> UC29 [dir=forward style=dashed xlabel="«include»" fontsize=10 constraint=false];
+  USR -> PAX [dir=back arrowtail=onormal arrowsize=1.2 constraint=false];
+  ADM -> USR [dir=forward arrowhead=onormal arrowsize=1.2 constraint=false];
+}

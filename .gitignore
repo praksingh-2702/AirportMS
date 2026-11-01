@@ -2,24 +2,4 @@ __pycache__/
 *.pyc
 data/*.db
 .coverage
-# Python cache files
-__pycache__/
-*.py[cod]
-
-# Virtual environments
-.venv/
-venv/
-
-# Environment variables and secrets
-.env
-.env.*
-!.env.example
-
-# Test coverage
-.coverage
-htmlcov/
-
-# IDE and OS files
-.vscode/
-.DS_Store
-Thumbs.db
+node_modules/

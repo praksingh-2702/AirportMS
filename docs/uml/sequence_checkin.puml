@@ -1,34 +1,45 @@
 @startuml
 !include _style.iuml
-title Sequence Diagram - Check In Passenger
-actor "Check-in Staff" as Staff
 participant ":CheckInView" as CV
 participant ":CheckInService" as CS
-participant "access" as AC
-participant "validators" as V
-database "SQLite DB" as DB
+participant ":access" as AC
+participant ":validators" as V
+database ":Database" as DB
 participant ":BoardingPass" as BP
-Staff -> CV : enter PNR, click "Check in passenger"
+participant ":boarding_pdf" as PDF
+[-> CV : check_in()
+activate CV
 CV -> CS : check_in(user, pnr, now)
 activate CS
-CS -> AC : require_role(user, STAFF, ADMIN)
-CS -> CS : find_booking(pnr)
-activate CS
+CS -> AC : require_role(STAFF, ADMIN)
 CS -> V : validate_pnr(pnr)
-CS -> DB : SELECT booking JOIN users JOIN flights
+CS -> DB : SELECT booking, flight, passenger
 DB --> CS : row
-deactivate CS
-alt cancelled / already checked in / flight not operating / outside window
-  CS --> CV : BusinessRuleError(reason)
-  CV --> Staff : error dialog
+alt [cancelled / checked in / flight not operating]
+  CS --> CV : BusinessRuleError
+else [no PAID payment]
+  CS -> DB : SELECT payment
+  CS --> CV : BusinessRuleError(payment pending)
+else [outside 48 h .. 45 min window]
+  CS --> CV : BusinessRuleError(window)
 else eligible
-  CS -> DB : SELECT MAX(boarding_seq)+1
-  CS -> DB : UPDATE bookings SET CHECKED_IN, seq
-  CS -> CS : get_boarding_pass(user, pnr)
+  CS -> DB : SELECT MAX(boarding_seq) + 1
+  CS -> DB : UPDATE booking CHECKED_IN
   CS -> BP ** : BoardingPass(...)
   CS --> CV : BoardingPass
   deactivate CS
   CV -> BP : as_text()
-  CV --> Staff : show boarding pass
+  CV --> CV : show pass, enable download
 end
+deactivate CV
+[-> CV : download()
+activate CV
+CV -> CS : boarding_pass_file(user, pnr)
+activate CS
+CS -> PDF : render_boarding_pass(pass)
+PDF --> CS : pdf bytes
+CS --> CV : (file name, bytes)
+deactivate CS
+CV --> CV : save dialog, write file
+deactivate CV
 @enduml

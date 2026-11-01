@@ -1,0 +1,8 @@
+{
+  "name": "ams-report-builder",
+  "private": true,
+  "description": "Builds docs/AMS_SAD_Report.docx",
+  "dependencies": {
+    "docx": "^9.5.0"
+  }
+}

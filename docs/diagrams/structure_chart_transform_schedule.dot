@@ -1,0 +1,29 @@
+digraph "structure_chart_transform_schedule" {
+  graph [rankdir=TB bgcolor="#FFFFFF" fontname="DejaVu Sans" pad=0.3 splines=true nodesep=0.35 ranksep=0.9];
+  node [fontname="DejaVu Sans" fontsize=12 color="#000000" fillcolor="#D9E8FB" style=filled penwidth=1.3];
+  edge [fontname="DejaVu Sans" fontsize=10 color="#444444" arrowsize=0.7];
+  node [shape=box style=filled fillcolor="white" width=1.6];
+  labelloc=t label="Structure Chart 5 - Transform Analysis of DFD 0.7 (Generate Flights)" fontsize=14;
+  root [label="Generate Flights\nScheduleService.generate_flights()" fillcolor="#D9E8FB"];
+  aff [label="Get Due Services" fillcolor="white"];
+  ls [label="List Active Services\nlist_templates()" fillcolor="white"];
+  ex [label="Read Existing Flights\nSELECT flights" fillcolor="white"];
+  price [label="Price Flight" fillcolor="white"];
+  fare [label="Dynamic Fare\ndynamic_fare()" fillcolor="white" peripheries=2];
+  plan [label="Plan Gates" fillcolor="white"];
+  gp [label="Gate Planner\n_GatePlanner.assign()" fillcolor="white"];
+  eff [label="Create Flights" fillcolor="white"];
+  ins [label="Insert Flights\nINSERT flights" fillcolor="white"];
+  sum [label="Summarise Generation\nGenerationResult" fillcolor="white"];
+  root -> aff [label="○ days ↓\n○ due_services ↑" arrowsize=0.7];
+  aff -> ls [label="○ services ↑" arrowsize=0.7];
+  aff -> ex [label="○ date range ↓\n○ existing flights ↑" arrowsize=0.7];
+  root -> price [label="○ due_services ↓\n○ priced flights ↑" arrowsize=0.7];
+  price -> fare [label="○ base_fare, departure ↓\n○ fare ↑" arrowsize=0.7];
+  root -> plan [label="○ priced flights ↓\n○ planned flights ↑" arrowsize=0.7];
+  plan -> gp [label="○ departure ↓\n○ gate ↑" arrowsize=0.7];
+  root -> eff [label="○ planned flights ↓\n○ count ↑" arrowsize=0.7];
+  eff -> ins [label="○ flight rows ↓" arrowsize=0.7];
+  eff -> sum [label="○ count ↓\n○ summary ↑" arrowsize=0.7];
+  legend [shape=note fillcolor="#EEEEEE" fontsize=10 label="○ data couple   ● control flag\n↓ passed to called module   ↑ returned to caller\ndouble border = library module"];
+}

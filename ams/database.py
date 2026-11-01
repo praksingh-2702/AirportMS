@@ -41,6 +41,23 @@ CREATE TABLE IF NOT EXISTS flights (
     UNIQUE (flight_no, departure)
 );
 
+-- D5: recurring services; the schedule generator turns them into dated rows of D2 FLIGHTS
+CREATE TABLE IF NOT EXISTS flight_templates (
+    template_id  INTEGER PRIMARY KEY AUTOINCREMENT,
+    flight_no    TEXT    NOT NULL UNIQUE,
+    airline      TEXT    NOT NULL,
+    origin       TEXT    NOT NULL CHECK (length(origin) = 3),
+    destination  TEXT    NOT NULL CHECK (length(destination) = 3),
+    dep_time     TEXT    NOT NULL,
+    duration_min INTEGER NOT NULL CHECK (duration_min BETWEEN 20 AND 1200),
+    days         TEXT    NOT NULL DEFAULT '1234567',
+    rows         INTEGER NOT NULL CHECK (rows BETWEEN 1 AND 40),
+    base_fare    INTEGER NOT NULL CHECK (base_fare > 0),
+    active       INTEGER NOT NULL DEFAULT 1
+);
+
+CREATE INDEX IF NOT EXISTS ix_flights_departure ON flights (departure);
+
 CREATE TABLE IF NOT EXISTS bookings (
     booking_id    INTEGER PRIMARY KEY AUTOINCREMENT,
     pnr           TEXT    NOT NULL UNIQUE,
@@ -58,6 +75,29 @@ CREATE TABLE IF NOT EXISTS bookings (
 -- a seat can be held by at most one non-cancelled booking
 CREATE UNIQUE INDEX IF NOT EXISTS ux_active_seat
     ON bookings (flight_id, seat) WHERE status <> 'CANCELLED';
+
+-- D6: payments (simulated gateway). Card numbers and CVV are never stored, only a masked label.
+CREATE TABLE IF NOT EXISTS payments (
+    payment_id      INTEGER PRIMARY KEY AUTOINCREMENT,
+    booking_id      INTEGER NOT NULL REFERENCES bookings(booking_id),
+    invoice_no      TEXT    NOT NULL UNIQUE,
+    method          TEXT    NOT NULL CHECK (method IN ('CARD','UPI','NETBANKING','LEGACY')),
+    instrument      TEXT    NOT NULL DEFAULT '',
+    amount          INTEGER NOT NULL CHECK (amount > 0),
+    base_fare       INTEGER NOT NULL,
+    airport_fee     INTEGER NOT NULL,
+    gst             INTEGER NOT NULL,
+    convenience_fee INTEGER NOT NULL,
+    status          TEXT    NOT NULL CHECK (status IN ('PAID','REFUNDED')),
+    reference       TEXT    NOT NULL,
+    paid_at         TEXT    NOT NULL,
+    refund_amount   INTEGER NOT NULL DEFAULT 0,
+    refund_reason   TEXT,
+    refunded_at     TEXT
+);
+
+-- a booking is paid for at most once
+CREATE UNIQUE INDEX IF NOT EXISTS ux_payment_booking ON payments (booking_id);
 
 CREATE TABLE IF NOT EXISTS baggage (
     bag_id     INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -157,6 +197,18 @@ def seed_sample_data(conn: sqlite3.Connection, now: Optional[datetime] = None) -
             (pnr, ids[user], fid[flight], seat, fares[flight], status,
              fmt_dt(now - timedelta(days=4)), checked, seq))
         bid[pnr] = cur.lastrowid
+
+    # Sample payments: every live sample booking is paid; the booking on the cancelled flight was refunded in full.
+    from .payments_core import fare_breakdown, record_payment, refund_booking
+    sample_pay = {"K7Q2MA": ("UPI", "pr***@okaxis"), "R4T9XB": ("CARD", "VISA XXXX 4242"),
+                  "M3J8LC": ("CARD", "MASTERCARD XXXX 4444"), "P9W1ZD": ("UPI", "pr***@oksbi"),
+                  "H2N6YE": ("NETBANKING", "HDFC Bank"), "T5V3QF": ("CARD", "VISA XXXX 1881"),
+                  "C8L4KG": ("UPI", "pr***@okaxis"), "B6D7RH": ("UPI", "sn***@ybl")}
+    for pnr, _user, flight_no, *_rest in bookings:
+        method, instrument = sample_pay[pnr]
+        record_payment(conn, bid[pnr], method, instrument, fare_breakdown(fares[flight_no]), None,
+                       now - timedelta(days=4))
+    refund_booking(conn, bid["C8L4KG"], now - timedelta(days=1), True, "Flight cancelled by the airline")
 
     for weight, status in ((18.5, "LOADED"), (6.0, "CHECKED_IN")):
         cur = conn.execute(

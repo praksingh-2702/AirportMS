@@ -1,6 +1,6 @@
 @startuml
 !include _style.iuml
-title State Chart - Bag (BAG_TRANSITIONS)
+hide empty description
 [*] --> CHECKED_IN : add_bag()\n/ generate tag
 CHECKED_IN --> LOADED : update_bag_status(LOADED)
 LOADED --> UNLOADED : update_bag_status(UNLOADED)

@@ -1,0 +1,27 @@
+@startuml
+!include _style.iuml
+participant ":ScheduleView" as SV
+participant ":ScheduleService" as SS
+participant ":GatePlanner" as GP
+database ":Database" as DB
+[-> SV : generate()
+activate SV
+SV -> SS : generate_flights(admin, days, now)
+activate SS
+SS -> SS : validate_horizon_days(days)
+SS -> DB : SELECT existing (flight_no, date)
+SS -> DB : SELECT busy gates
+SS -> GP ** : GatePlanner(busy)
+loop for each active service and each day
+  alt runs that weekday, departure in future, not yet created
+    SS -> SS : dynamic_fare(base, departure, now)
+    SS -> GP : assign(departure)
+    GP --> SS : gate
+  end
+end
+SS -> DB : INSERT flights (one batch)
+SS --> SV : GenerationResult(created, skipped, through)
+deactivate SS
+SV --> SV : show summary, refresh
+deactivate SV
+@enduml

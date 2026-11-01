@@ -1,29 +1,32 @@
 @startuml
 !include _style.iuml
-title Sequence Diagram - Login
-actor User
 participant ":LoginView" as LV
 participant ":AuthService" as AS
-participant "security" as SEC
-database "SQLite DB" as DB
+participant ":security" as SEC
+database ":Database" as DB
 participant ":AirportApp" as APP
-User -> LV : enter username, password, click Login
+[-> LV : login(username, password)
+activate LV
 LV -> AS : login(username, password)
+activate AS
 alt blank field
-  AS --> LV : ValidationError
+  AS --> LV : [blank] ValidationError
 else
-  AS -> DB : SELECT * FROM users WHERE username = ?
+  AS -> DB : SELECT user
   DB --> AS : row / none
   AS -> SEC : verify_password(pw, hash, salt)
   SEC --> AS : True / False
   alt no row or wrong password
-    AS --> LV : AuthenticationError("Invalid username or password.")
-    LV --> User : error dialog
+    AS --> LV : [invalid] AuthenticationError
+    LV --> LV : error dialog, shake card
   else valid
     AS --> LV : User
+    deactivate AS
     LV -> APP : show_dashboard(user)
-    APP -> APP : build tabs from ROLE_TABS[user.role]
-    APP --> User : role-specific dashboard
+    activate APP
+    APP -> APP : build tabs for the role
+    deactivate APP
   end
 end
+deactivate LV
 @enduml

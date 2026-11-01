@@ -23,3 +23,7 @@ class NotFoundError(AMSError):
 
 class BusinessRuleError(AMSError):
     """Input is well-formed but violates a business rule (seat taken, gate busy, ...)."""
+
+
+class PaymentError(AMSError):
+    """The (simulated) payment gateway declined the payment."""

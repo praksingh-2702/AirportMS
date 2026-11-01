@@ -7,8 +7,8 @@ const {
 } = require("docx");
 
 const ROOT = path.resolve(__dirname, "..", "..");
-const CONTENT_W = 9026;          // A4 width 11906 - 2 x 1440 margins (DXA)
-const MAX_IMG_W_PX = 600;        // ~6.25 in at 96 px/in
+const CONTENT_W = 9746;          // A4 width 11906 - 2 x 1080 margins (DXA)
+const MAX_IMG_W_PX = 640;        // ~6.25 in at 96 px/in
 const MAX_IMG_H_PX = 820;        // ~8.5 in
 const BODY_FONT = "Times New Roman";
 const MONO_FONT = "Courier New";
@@ -34,7 +34,8 @@ function runs(text, base = {}) {
   return out;
 }
 
-const H1 = (t) => new Paragraph({ heading: HeadingLevel.HEADING_1, pageBreakBefore: true, children: [new TextRun(t)] });
+const H1 = (t, opts = {}) => new Paragraph({ heading: HeadingLevel.HEADING_1, pageBreakBefore: opts.newPage !== false,
+  spacing: opts.newPage === false ? { before: 360 } : undefined, children: [new TextRun(t)] });
 const H2 = (t) => new Paragraph({ heading: HeadingLevel.HEADING_2, children: [new TextRun(t)] });
 const H3 = (t) => new Paragraph({ heading: HeadingLevel.HEADING_3, children: [new TextRun(t)] });
 const P = (t, opts = {}) => new Paragraph({ alignment: AlignmentType.JUSTIFIED, spacing: { after: 120 }, ...opts, children: runs(t) });
@@ -77,6 +78,28 @@ function Img(rel, caption, opts = {}) {
       altText: { title: caption, description: caption, name: path.basename(file) } })] })];
   if (caption) out.push(Caption("Figure", caption));
   return out;
+}
+
+
+// Two figures side by side (borderless table), each with its own figure number and caption.
+function ImgPair(relA, capA, relB, capB, opts = {}) {
+  const cellW = Math.floor(CONTENT_W / 2);
+  const maxW = opts.maxW || Math.floor(MAX_IMG_W_PX / 2) - 8, maxH = opts.maxH || 420;
+  const none = { style: BorderStyle.NONE, size: 0, color: "FFFFFF" };
+  const nob = { top: none, bottom: none, left: none, right: none };
+  const cell = (rel, cap) => {
+    const { w, h, buf } = pngSize(path.join(ROOT, rel));
+    const scale = Math.min(maxW / w, maxH / h);
+    return new TableCell({ borders: nob, width: { size: cellW, type: WidthType.DXA }, verticalAlign: VerticalAlign.BOTTOM,
+      margins: { top: 40, bottom: 40, left: 60, right: 60 },
+      children: [new Paragraph({ alignment: AlignmentType.CENTER, spacing: { before: 120 },
+        children: [new ImageRun({ type: "png", data: buf, transformation: { width: Math.round(w * scale), height: Math.round(h * scale) },
+          altText: { title: cap, description: cap, name: path.basename(rel) } })] }), Caption("Figure", cap)] });
+  };
+  return [new Table({ width: { size: cellW * 2, type: WidthType.DXA }, columnWidths: [cellW, cellW],
+    borders: { top: none, bottom: none, left: none, right: none, insideHorizontal: none, insideVertical: none },
+    rows: [new TableRow({ cantSplit: true, children: [cell(relA, capA), cell(relB, capB)] })] }),
+    new Paragraph({ spacing: { after: 60 }, children: [] })];
 }
 
 const border = { style: BorderStyle.SINGLE, size: 4, color: "000000" };
@@ -135,5 +158,5 @@ function pySource(rel, name) {
   return lines.slice(start, end).map((l) => l.slice(indent));
 }
 
-module.exports = { ROOT, CONTENT_W, BODY_FONT, MONO_FONT, H1, H2, H3, P, Center, Bullets, Numbered, Break, Code,
+module.exports = { ROOT, CONTENT_W, BODY_FONT, MONO_FONT, H1, H2, H3, P, Center, Bullets, Numbered, Break, Code, ImgPair,
   Caption, Img, Tbl, KV, runs, setChapter, pySource };

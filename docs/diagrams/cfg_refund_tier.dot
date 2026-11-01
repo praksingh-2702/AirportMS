@@ -1,0 +1,19 @@
+digraph "cfg_refund_tier" {
+  graph [rankdir=TB bgcolor="#FFFFFF" fontname="DejaVu Sans" pad=0.3 splines=true nodesep=0.35 ranksep=0.35];
+  node [fontname="DejaVu Sans" fontsize=12 color="#000000" fillcolor="#D9E8FB" style=filled penwidth=1.3];
+  edge [fontname="DejaVu Sans" fontsize=10 color="#444444" arrowsize=0.7];
+  labelloc=t label="CFG - cancellation_percent()" fontsize=13;
+  node [shape=circle width=0.45 fixedsize=true fontsize=11];
+  "1" [fillcolor="#FFF4C2"];
+  "2" [fillcolor="#FFF4C2"];
+  "3";
+  "4";
+  "E";
+  "1" -> "2" [label="T"];
+  "1" -> "4" [label="F"];
+  "2" -> "3" [label="T"];
+  "2" -> "1" [label="F"];
+  "3" -> "E";
+  "4" -> "E";
+  info [shape=note fixedsize=false fillcolor="#EEEEEE" fontsize=10 label="N = 5, E = 6\nV(G) = E - N + 2 = 3\nV(G) = P + 1 = 3"];
+}

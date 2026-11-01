@@ -1,0 +1,31 @@
+@startuml
+!include _style.iuml
+|Administrator|
+start
+:Open Schedule tab;
+:Enter number of days;
+:Click "Generate flights";
+|System|
+if (Days between 1 and 90?) then (no)
+  :Show error;
+  stop
+endif
+:Read active recurring services;
+:Read flights that already exist;
+while (Next service and day?) is (yes)
+  if (Runs that weekday and\ndeparts in the future?) then (no)
+  else (yes)
+    if (Flight already exists\n(or was cancelled)?) then (yes)
+      :Count as skipped;
+    else (no)
+      :Price the flight (dynamic fare);
+      :Plan a free gate (60-minute rule);
+      :Add to batch;
+    endif
+  endif
+endwhile (no)
+:Insert all new flights;
+:Show created / skipped summary;
+|Administrator|
+stop
+@enduml

@@ -1,7 +1,6 @@
 @startuml
 !include _style.iuml
 hide empty members
-skinparam linetype ortho
 package "ams.models (entity classes)" {
   enum Role {
     ADMIN
@@ -27,6 +26,10 @@ package "ams.models (entity classes)" {
     CLAIMED
     MISHANDLED
   }
+  enum PaymentStatus {
+    PAID
+    REFUNDED
+  }
   class User {
     +user_id : int
     +username : str
@@ -34,7 +37,6 @@ package "ams.models (entity classes)" {
     +full_name : str
     +email : str
     +phone : str
-    +from_row(row) : User
   }
   class Flight {
     +flight_id : int
@@ -50,52 +52,80 @@ package "ams.models (entity classes)" {
     +status : FlightStatus
     +capacity() : int
   }
+  class FlightTemplate {
+    +template_id : int
+    +flight_no : str
+    +origin : str
+    +destination : str
+    +dep_time : str
+    +duration_min : int
+    +days : str
+    +base_fare : int
+    +active : bool
+    +days_label() : str
+  }
   class Booking {
     +booking_id : int
     +pnr : str
-    +user_id : int
-    +flight_id : int
     +seat : str
     +fare : int
     +status : BookingStatus
     +booked_at : datetime
-    +checked_in_at : datetime [0..1]
     +boarding_seq : int [0..1]
   }
   class Bag {
     +bag_id : int
-    +booking_id : int
     +tag_no : str
     +weight_kg : float
     +status : BagStatus
-    +updated_at : datetime
-  }
-  class BookingDetails {
-    +booking : Booking
-    +passenger_name : str
-    +flight_no : str
-    +departure : datetime
-    +gate : str
-    +flight_status : FlightStatus
   }
   class BoardingPass {
     +pnr : str
     +passenger_name : str
     +flight_no : str
     +boarding_time : datetime
-    +gate : str
+    +gate : str [0..1]
     +seat : str
     +boarding_seq : int
     +as_text() : str
   }
+  class Payment {
+    +payment_id : int
+    +invoice_no : str
+    +method : str
+    +instrument : str
+    +amount : int
+    +status : PaymentStatus
+    +reference : str
+    +paid_at : datetime
+    +refund_amount : int
+    +refund_reason : str [0..1]
+  }
+  class FareBreakdown {
+    +base_fare : int
+    +airport_fee : int
+    +gst : int
+    +convenience_fee : int
+    +total() : int
+  }
+  class RefundQuote {
+    +refund : int
+    +charge : int
+    +percent : int
+    +convenience_fee : int
+  }
 }
-User "1" -- "0..*" Booking : holds >
-Flight "1" -- "0..*" Booking : reserved on <
-Booking "1" *-- "0..3" Bag : checks >
-BookingDetails o-- "1" Booking
-Booking "1" ..> "0..1" BoardingPass : produces >
+User "1" -- "*" Booking : holds >
+Flight "1" -- "*" Booking : carries >
+Booking "1" -- "*" Bag : has >
+Booking "1" -- "0..1" Payment : is paid by >
+Payment *-- "1" FareBreakdown
+FlightTemplate "1" -- "*" Flight : generates >
+BoardingPass ..> Booking : built from
+RefundQuote ..> Payment : computed from
 User ..> Role
 Flight ..> FlightStatus
 Booking ..> BookingStatus
 Bag ..> BagStatus
+Payment ..> PaymentStatus
 @enduml

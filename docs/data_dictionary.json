@@ -21,14 +21,44 @@
    "Data store (table baggage)."
   ],
   [
+   "D5 Recurring Services",
+   "{template_id + flight_no + airline + origin + destination + dep_time + duration_min + days + rows + base_fare + active}",
+   "Data store (table flight_templates). One row per daily service, e.g. 6E6001 DEL-BOM 06:25."
+  ],
+  [
+   "D6 Payments",
+   "{payment_id + booking_id + invoice_no + method + instrument + amount + base_fare + airport_fee + gst + convenience_fee + payment_status + reference + paid_at + refund_amount + (refund_reason) + (refunded_at)}",
+   "Data store (table payments). At most one payment per booking. Card number and CVV are never stored."
+  ],
+  [
    "Active booking",
    "Booking details",
    "Booking whose status is BOOKED."
   ],
   [
+   "Amount due",
+   "total",
+   "Passed on to be authorised."
+  ],
+  [
+   "Approved payment",
+   "Valid payment details + reference",
+   "Payment the gateway has approved."
+  ],
+  [
    "Authentication result",
    "[user + role | error_message]",
    "User object (opens the role dashboard) or 'Invalid username or password.'"
+  ],
+  [
+   "Authorization request",
+   "method + details + amount",
+   "Sent to the (simulated) payment gateway."
+  ],
+  [
+   "Authorization result",
+   "[approved + reference | declined + message]",
+   "e.g. 'Card declined by the issuing bank.'"
   ],
   [
    "Bag details",
@@ -59,6 +89,11 @@
    "Boarding pass",
    "pnr + passenger_name + flight_no + origin + destination + departure + boarding_time + (gate) + seat + boarding_seq",
    "boarding_time = departure - 30 min (class BoardingPass)."
+  ],
+  [
+   "Boarding pass data",
+   "Boarding pass",
+   "Input to the PDF writer."
   ],
   [
    "Boarding sequence",
@@ -93,12 +128,17 @@
   [
    "Cancel request",
    "flight_id",
-   "Raised by 2.5 when the new status is CANCELLED."
+   "Raised by 0.2.5 when the new status is CANCELLED."
   ],
   [
    "Cancellation confirmation",
    "message",
    "e.g. 'Booking P9W1ZD cancelled.'"
+  ],
+  [
+   "Cancellation notice",
+   "booking_id",
+   "Sent by 0.4 when a passenger or administrator cancels a booking."
   ],
   [
    "Cancellation request",
@@ -111,6 +151,11 @@
    "Update written to D3."
   ],
   [
+   "Due services",
+   "{Service record + departure}",
+   "Active services that run on a given date and depart in the future."
+  ],
+  [
    "Eligible booking",
    "Booking details",
    "Check-in still open (now <= departure - 45 min)."
@@ -121,14 +166,29 @@
    "Used to guarantee a unique PNR."
   ],
   [
+   "Existing flights",
+   "{flight_no + departure + flight_status}",
+   "Used so that a generated flight is never created twice, or re-created after a cancellation."
+  ],
+  [
    "Existing usernames",
    "{username}",
    "Used to reject a duplicate username."
   ],
   [
+   "Fare breakdown",
+   "base_fare + airport_fee + gst + convenience_fee + total",
+   "total = base_fare + 200 + 5% of (base_fare + 200) + 150."
+  ],
+  [
    "Flight cancellation",
    "flight_id",
    "Request to cancel a flight (cascades to bookings)."
+  ],
+  [
+   "Flight cancellation notice",
+   "flight_id",
+   "Sent by 0.2 so that every paid booking on the flight is refunded in full."
   ],
   [
    "Flight details",
@@ -168,7 +228,7 @@
   [
    "Gate request",
    "gate + departure + flight_id",
-   "Sent to 2.2 to check a gate."
+   "Sent to 0.2.2 to check a gate."
   ],
   [
    "Gate schedule",
@@ -176,9 +236,24 @@
    "Active flights at a gate, used for the 60-minute conflict check."
   ],
   [
+   "Gate-assigned flights",
+   "{Priced flights + (gate)}",
+   "A free gate is chosen so that no two active flights at one gate depart within 60 minutes."
+  ],
+  [
    "Gate-checked flight",
    "Valid flight details",
    "Flight whose gate (if any) has no conflict."
+  ],
+  [
+   "Generation request",
+   "days",
+   "Number of days (1-90) for which dated flights are to be created."
+  ],
+  [
+   "Generation summary",
+   "created_count + skipped_count + last_day",
+   "e.g. 'Created 1,200 flight(s); 30 already existed.'"
   ],
   [
    "Login credentials",
@@ -201,14 +276,59 @@
    "Active booking whose flight is not CANCELLED or DEPARTED."
   ],
   [
+   "PNR",
+   "6{alphanumeric}6",
+   "Booking reference, e.g. K7Q2MA (letters I, O and digits 0, 1 are not generated)."
+  ],
+  [
+   "Paid booking",
+   "Booking details",
+   "Operating-flight booking that has a PAID payment."
+  ],
+  [
    "Passenger name",
    "full_name",
    "Read from D1 for the boarding pass."
   ],
   [
-   "PNR",
-   "6{alphanumeric}6",
-   "Booking reference, e.g. K7Q2MA (letters I, O and digits 0, 1 are not generated)."
+   "Payment details",
+   "method + [card_number + expiry + cvv + name_on_card | upi_id | bank]",
+   "method = [\"CARD\" | \"UPI\" | \"NETBANKING\"]."
+  ],
+  [
+   "Payment receipt",
+   "invoice_no + passenger_name + pnr + flight_no + breakdown + instrument + reference + (refund)",
+   "One-page PDF receipt."
+  ],
+  [
+   "Payment record",
+   "payment_id + booking_id + invoice_no + method + instrument + amount + base_fare + airport_fee + gst + convenience_fee + payment_status + reference + paid_at + refund_amount + (refund_reason) + (refunded_at)",
+   "One row of D6."
+  ],
+  [
+   "Payment request",
+   "booking_id + base_fare",
+   "Sent by 0.4 when a seat has been reserved and must be paid for."
+  ],
+  [
+   "Payment result",
+   "[payment | message]",
+   "payment on success; the bank's reason when declined."
+  ],
+  [
+   "Priced flights",
+   "{Due services + fare}",
+   "fare = base_fare x time-of-day, weekday and days-ahead factors, kept within 500..200000."
+  ],
+  [
+   "Refund amount",
+   "amount + charge + percent",
+   "refund = amount - convenience_fee - charge; charge = percent of base_fare (10 / 25 / 50 / 100 by time to departure)."
+  ],
+  [
+   "Refund confirmation",
+   "message",
+   "e.g. 'Rs 5,170 refunded to UPI pr***@oksbi (demo).'"
   ],
   [
    "Registration confirmation",
@@ -224,6 +344,11 @@
    "Rejection reason",
    "message",
    "Why check-in was refused."
+  ],
+  [
+   "Revenue summary",
+   "total_paid - total_refunded",
+   "Shown as a tile on the administrator's dashboard."
   ],
   [
    "Schedule confirmation",
@@ -244,6 +369,21 @@
    "Selected seat",
    "seat",
    "Seat clicked on the seat map."
+  ],
+  [
+   "Service details",
+   "flight_no + airline + origin + destination + dep_time + duration_min + days + rows + base_fare",
+   "Entered by the administrator for one daily service; days = [\"Daily\" | \"Weekdays\" | {weekday}]."
+  ],
+  [
+   "Service list",
+   "{Service record}",
+   "Table of recurring services on the Schedule tab."
+  ],
+  [
+   "Service record",
+   "template_id + flight_no + airline + origin + destination + dep_time + duration_min + days + rows + base_fare + active",
+   "One row of D5."
   ],
   [
    "Staff account details",
@@ -289,6 +429,16 @@
    "Valid flight details",
    "Flight details",
    "Flight details that passed all format and schedule checks."
+  ],
+  [
+   "Valid payment details",
+   "Payment details",
+   "Details that passed the Luhn check, expiry, CVV, UPI-id and bank checks."
+  ],
+  [
+   "Valid service",
+   "Service details",
+   "Service details that passed the format checks and are not a duplicate."
   ]
  ],
  "elementary": [
@@ -366,6 +516,61 @@
    "bag_status",
    "[CHECKED_IN | LOADED | UNLOADED | CLAIMED | MISHANDLED]",
    "enum BagStatus"
+  ],
+  [
+   "dep_time",
+   "HH:MM, 24-hour",
+   "departure time of a recurring service"
+  ],
+  [
+   "duration_min",
+   "integer 20-1200",
+   "flying time in minutes"
+  ],
+  [
+   "days",
+   "ISO weekday digits 1-7 (1 = Monday)",
+   "'Daily' = 1234567"
+  ],
+  [
+   "method",
+   "[CARD | UPI | NETBANKING | LEGACY]",
+   "LEGACY marks bookings made before payments existed"
+  ],
+  [
+   "card_number",
+   "13-19 digits passing the Luhn check",
+   "never stored; only 'VISA XXXX 1111' is kept"
+  ],
+  [
+   "expiry",
+   "MM/YY, not in the past",
+   "never stored"
+  ],
+  [
+   "cvv",
+   "3 digits (4 for American Express)",
+   "never stored"
+  ],
+  [
+   "upi_id",
+   "name@bank",
+   "stored masked, e.g. pr***@okaxis"
+  ],
+  [
+   "amount",
+   "integer INR",
+   "total = fare + airport fee + GST + convenience fee"
+  ],
+  [
+   "invoice_no",
+   "INV-YYYYMMDD-nnnnn",
+   "unique per payment"
+  ],
+  [
+   "payment_status",
+   "[PAID | REFUNDED]",
+   "enum PaymentStatus"
   ]
  ]
 }

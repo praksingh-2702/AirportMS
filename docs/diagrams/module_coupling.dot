@@ -1,40 +1,32 @@
 digraph "module_coupling" {
-  graph [fontname="DejaVu Sans" pad=0.3 rankdir=TB nodesep=0.3 ranksep=0.7 compound=true];
-  node [fontname="DejaVu Sans" fontsize=12];
-  edge [fontname="DejaVu Sans" fontsize=10 color="#333333"];
-  node [shape=box style="filled" fillcolor="#D9E8FB"];
-  subgraph cluster_gui { label="Presentation layer (ams.gui)" style=dashed; app [label="AirportApp / AppContext"]; lv [label="LoginView"]; fv [label="FlightView"]; bv [label="BookingView"]; cv [label="CheckInView"]; uv [label="UsersView"]; }
-  subgraph cluster_svc { label="Service layer (ams.services)" style=dashed; as [label="AuthService"]; fs [label="FlightService"]; bs [label="BookingService"]; cs [label="CheckInService"]; }
-  subgraph cluster_util { label="Utility / data layer" style=dashed; node [fillcolor="#FFF4C2"]; val [label="validators"]; acc [label="access"]; sec [label="security"]; mod [label="models"]; cfg [label="config"]; err [label="errors"]; }
+  graph [rankdir=TB bgcolor="#FFFFFF" fontname="DejaVu Sans" pad=0.3 splines=true nodesep=0.3 ranksep=0.7 compound=true];
+  node [fontname="DejaVu Sans" fontsize=12 color="#000000" fillcolor="#D9E8FB" style=filled penwidth=1.3];
+  edge [fontname="DejaVu Sans" fontsize=10 color="#444444" arrowsize=0.7];
+  node [shape=box];
+  subgraph cluster_gui { label="Presentation layer (ams.gui)" style=dashed fontname="DejaVu Sans" app [label="AirportApp / AppContext" fillcolor="#D9E8FB"]; lv [label="LoginView" fillcolor="#D9E8FB"]; fv [label="FlightView" fillcolor="#D9E8FB"]; sv [label="ScheduleView" fillcolor="#D9E8FB"]; bv [label="BookingView" fillcolor="#D9E8FB"]; pd [label="PaymentDialog" fillcolor="#D9E8FB"]; cv [label="CheckInView" fillcolor="#D9E8FB"]; uv [label="UsersView" fillcolor="#D9E8FB"]; }
+  subgraph cluster_svc { label="Service layer (ams.services)" style=dashed fontname="DejaVu Sans" as [label="AuthService" fillcolor="#D9E8FB"]; fs [label="FlightService" fillcolor="#D9E8FB"]; ss [label="ScheduleService" fillcolor="#D9E8FB"]; bs [label="BookingService" fillcolor="#D9E8FB"]; ps [label="PaymentService" fillcolor="#D9E8FB"]; cs [label="CheckInService" fillcolor="#D9E8FB"]; }
+  subgraph cluster_util { label="Utility / data layer" style=dashed fontname="DejaVu Sans" val [label="validators" fillcolor="#FFF4C2"]; acc [label="access" fillcolor="#FFF4C2"]; sec [label="security" fillcolor="#FFF4C2"]; mod [label="models" fillcolor="#FFF4C2"]; cfg [label="config" fillcolor="#FFF4C2"]; gw [label="gateway" fillcolor="#FFF4C2"]; pc [label="payments_core" fillcolor="#FFF4C2"]; pdf [label="boarding_pdf, receipt_pdf" fillcolor="#FFF4C2"]; }
   db [shape=cylinder fillcolor="#EEEEEE" label="SQLite\nairport.db"];
   app -> lv;
   app -> fv;
+  app -> sv;
   app -> bv;
   app -> cv;
   app -> uv;
+  bv -> pd;
   lv -> as;
   uv -> as;
   fv -> fs;
+  sv -> ss;
   bv -> bs;
   bv -> fs;
+  pd -> ps;
   cv -> cs;
   cv -> bs;
-  as -> val [color="#777777"];
-  as -> acc [color="#777777"];
-  as -> mod [color="#777777"];
-  as -> db [color="#1E3A5F" penwidth=1.3];
-  fs -> val [color="#777777"];
-  fs -> acc [color="#777777"];
-  fs -> mod [color="#777777"];
-  fs -> db [color="#1E3A5F" penwidth=1.3];
-  bs -> val [color="#777777"];
-  bs -> acc [color="#777777"];
-  bs -> mod [color="#777777"];
-  bs -> db [color="#1E3A5F" penwidth=1.3];
-  cs -> val [color="#777777"];
-  cs -> acc [color="#777777"];
-  cs -> mod [color="#777777"];
-  cs -> db [color="#1E3A5F" penwidth=1.3];
-  as -> sec [color="#777777"]; cs -> bs [style=dashed label="DETAILS_SQL"];
-  val -> cfg; val -> err; acc -> err;
+  cv -> ps;
+  fs -> mod [ltail=cluster_svc lhead=cluster_util color="#777777" penwidth=1.4 label="every service:\nvalidators, access,\nmodels"];
+  bs -> db [ltail=cluster_svc color="#1E3A5F" penwidth=1.6 label="every service\n(SQL)"];
+  as -> sec [color="#777777"]; ps -> gw; ps -> pc; bs -> pc; fs -> pc; ps -> pdf; cs -> pdf;
+  cs -> bs [style=dashed label="DETAILS_SQL"]; ps -> bs [style=dashed];
+  val -> cfg; pc -> cfg;
 }

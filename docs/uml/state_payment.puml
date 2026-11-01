@@ -1,0 +1,14 @@
+@startuml
+!include _style.iuml
+hide empty description
+[*] --> UNPAID : book_ticket()\n(booking without payment)
+[*] --> PAID : book_and_pay()\n[gateway approves]
+UNPAID --> PAID : pay_booking()\n[gateway approves]
+PAID --> REFUNDED : cancel_booking()\n/ refund minus charges
+PAID --> REFUNDED : cancel_flight()\n/ full refund
+UNPAID --> [*] : cancel_booking()\n(nothing to refund)
+REFUNDED --> [*]
+UNPAID : cannot be checked in
+PAID : receipt available\ncheck-in allowed
+REFUNDED : refund_amount recorded
+@enduml

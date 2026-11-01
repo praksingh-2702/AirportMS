@@ -1,17 +1,24 @@
-Name                              Stmts   Miss  Cover   Missing
----------------------------------------------------------------
-ams/__init__.py                       1      0   100%
-ams/access.py                        10      1    90%   11
-ams/config.py                        20      0   100%
-ams/database.py                      56      2    96%   78, 175
-ams/errors.py                         6      0   100%
-ams/models.py                       113      1    99%   162
-ams/security.py                      12      0   100%
-ams/services/__init__.py              5      0   100%
-ams/services/auth_service.py         51      8    84%   41, 47-49, 72, 76-78
-ams/services/booking_service.py      96     14    85%   24, 44-45, 48-49, 67, 72, 86-88, 97, 107, 113, 122
-ams/services/checkin_service.py      95      5    95%   83, 108, 123, 132-133
-ams/services/flight_service.py      121     13    89%   33, 39-41, 51-53, 84, 137, 159, 167-168, 173, 185
-ams/validators.py                   134     14    90%   34, 50, 79, 86, 101-102, 110-114, 121, 123, 174
----------------------------------------------------------------
-TOTAL                               720     58    92%
+Name                               Stmts   Miss  Cover   Missing
+----------------------------------------------------------------
+ams/__init__.py                        1      0   100%
+ams/access.py                         10      0   100%
+ams/boarding_pdf.py                  140      0   100%
+ams/config.py                         30      0   100%
+ams/database.py                       62      2    97%   118, 227
+ams/errors.py                          7      0   100%
+ams/gateway.py                        21      0   100%
+ams/models.py                        171      1    99%   245
+ams/network.py                        31      0   100%
+ams/payments_core.py                  43      0   100%
+ams/receipt_pdf.py                    66      0   100%
+ams/security.py                       12      0   100%
+ams/services/__init__.py               7      0   100%
+ams/services/auth_service.py          51      8    84%   41, 47-49, 72, 76-78
+ams/services/booking_service.py      100      9    91%   71, 76, 90-92, 101, 111, 117, 127
+ams/services/checkin_service.py      101      4    96%   119, 134, 143-144
+ams/services/flight_service.py       143     11    92%   34, 41-43, 113, 166, 188, 196-197, 202, 215
+ams/services/payment_service.py      107      2    98%   32, 98
+ams/services/schedule_service.py     127      3    98%   30, 148-149
+ams/validators.py                    230      9    96%   34, 50, 79, 86, 101-102, 121, 123, 174
+----------------------------------------------------------------
+TOTAL                               1460     49    97%

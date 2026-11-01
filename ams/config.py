@@ -22,6 +22,22 @@ MAX_FLIGHT_HOURS = 20         # longest allowed flight duration
 MIN_FARE = 500                # INR
 MAX_FARE = 200_000            # INR
 
+# Recurring schedule (flight templates -> dated flights)
+SCHEDULE_HORIZON_DAYS = 30    # flights are generated this many days ahead (also on every start-up)
+MAX_SCHEDULE_DAYS = 90        # longest horizon an administrator may generate in one go
+MIN_DURATION_MIN = 20         # shortest scheduled flight
+GATES = [f"{t}{n}" for t in "ABCD" for n in range(1, 21)]   # A1 .. D20, used for automatic gate assignment
+LIST_LIMIT = 300              # most rows a flight list / search returns at once
+
+# Payments (SIMULATED - nothing here moves real money; every amount is illustrative)
+AIRPORT_USER_FEE = 200        # INR per ticket
+CONVENIENCE_FEE = 150         # INR per ticket, never refunded
+GST_RATE_PERCENT = 5          # on fare + airport user fee
+# (minimum hours before departure, cancellation charge as % of the base fare); closer than the last tier = 100%
+REFUND_TIERS = ((48, 10), (24, 25), (2, 50))
+BANKS = ["State Bank of India", "HDFC Bank", "ICICI Bank", "Axis Bank", "Kotak Mahindra Bank",
+         "Punjab National Bank", "Demo Bank (offline)"]
+
 # Check-in rules
 CHECKIN_OPENS_HOURS = 48      # check-in opens 48 h before departure
 CHECKIN_CLOSES_MINUTES = 45   # and closes 45 min before departure

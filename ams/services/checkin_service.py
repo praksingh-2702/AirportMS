@@ -5,6 +5,7 @@ from datetime import datetime, timedelta
 from typing import List, Optional, Tuple
 
 from ..access import require_role
+from ..boarding_pdf import render_boarding_pass, suggested_filename
 from ..config import (BOARDING_BEFORE_MINUTES, CHECKIN_CLOSES_MINUTES, CHECKIN_OPENS_HOURS,
                       EXCESS_RATE_PER_KG, FREE_BAGGAGE_KG, MAX_BAGS_PER_BOOKING)
 from ..errors import BusinessRuleError, NotFoundError, ValidationError
@@ -59,6 +60,10 @@ class CheckInService:
             raise BusinessRuleError(f"Passenger {details.passenger_name} is already checked in.")
         if details.flight_status in (FlightStatus.CANCELLED, FlightStatus.DEPARTED):
             raise BusinessRuleError(f"Flight {details.flight_no} is {details.flight_status.value}.")
+        if not self.conn.execute("SELECT 1 FROM payments WHERE booking_id = ? AND status = 'PAID'",
+                                 (booking.booking_id,)).fetchone():
+            raise BusinessRuleError(f"Payment for booking {booking.pnr} is pending. "
+                                    "The passenger must pay before check-in.")
         if now < details.departure - timedelta(hours=CHECKIN_OPENS_HOURS):
             raise BusinessRuleError(f"Check-in opens {CHECKIN_OPENS_HOURS} hours before departure.")
         if now > details.departure - timedelta(minutes=CHECKIN_CLOSES_MINUTES):
@@ -85,6 +90,12 @@ class CheckInService:
                             details.destination, details.departure,
                             details.departure - timedelta(minutes=BOARDING_BEFORE_MINUTES),
                             details.gate, b.seat, b.boarding_seq)
+
+    def boarding_pass_file(self, actor: User, pnr) -> Tuple[str, bytes]:
+        """(suggested file name, PDF bytes) of a boarding pass. Same access rules as get_boarding_pass:
+        staff/admin any pass, a passenger only their own, and only once the booking is checked in."""
+        bp = self.get_boarding_pass(actor, pnr)
+        return suggested_filename(bp), render_boarding_pass(bp)
 
     # ----- baggage -----
     def list_bags(self, pnr) -> List[Bag]:

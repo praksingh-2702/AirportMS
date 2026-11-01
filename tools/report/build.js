@@ -55,7 +55,7 @@ const doc = new Document({
   title: "Airport Management System - SAD Mini-Project Report",
   features: { updateFields: true },
   styles: {
-    default: { document: { run: { font: L.BODY_FONT, size: 24 } } },
+    default: { document: { run: { font: L.BODY_FONT, size: 22 } } },
     paragraphStyles: [
       { id: "Heading1", name: "Heading 1", basedOn: "Normal", next: "Normal", quickFormat: true,
         run: { size: 32, bold: true, color: "000000", font: L.BODY_FONT },
@@ -78,7 +78,7 @@ const doc = new Document({
     ] },
   ] },
   sections: [{
-    properties: { page: { size: { width: 11906, height: 16838 }, margin: { top: 1440, right: 1440, bottom: 1440, left: 1440 } },
+    properties: { page: { size: { width: 11906, height: 16838 }, margin: { top: 1080, right: 1080, bottom: 1080, left: 1080 } },
     },
     children: body,
   }],

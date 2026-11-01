@@ -8,11 +8,14 @@ import sys
 
 from ams.config import DB_PATH
 from ams.database import create_database
+from ams.services import PaymentService, ScheduleService
 
 
 def main() -> None:
     reset = "--reset" in sys.argv
     conn = create_database(DB_PATH, reset=reset)
+    ScheduleService(conn).ensure_schedule()      # keeps flights available for the next 30 days
+    PaymentService(conn).migrate_legacy()        # one-time: bookings made before payments existed count as paid
     try:
         from ams.gui.app import AirportApp
     except ImportError as exc:   # tkinter missing (some Linux installs)

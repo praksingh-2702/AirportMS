@@ -2,6 +2,7 @@ skinparam dpi 160
 skinparam defaultFontName DejaVu Sans
 skinparam defaultFontSize 12
 skinparam shadowing false
+skinparam backgroundColor #FFFFFF
 skinparam ArrowColor #333333
 skinparam ActorBorderColor #333333
 skinparam ActorBackgroundColor #FFF4C2
@@ -18,6 +19,8 @@ skinparam ActivityBorderColor #333333
 skinparam ActivityDiamondBackgroundColor #FFF4C2
 skinparam ParticipantBackgroundColor #D9E8FB
 skinparam ParticipantBorderColor #333333
+skinparam DatabaseBackgroundColor #EEEEEE
+skinparam DatabaseBorderColor #333333
 skinparam SequenceLifeLineBorderColor #777777
 skinparam NoteBackgroundColor #FFFBE6
 skinparam NoteBorderColor #999999

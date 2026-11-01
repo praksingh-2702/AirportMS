@@ -1,43 +1,42 @@
 @startuml
 !include _style.iuml
-title Activity Diagram - Book Ticket
 |Passenger|
 start
-:Log in as passenger;
-:Enter From / To / Date (optional);
+:Search flights (From / To / date);
 |System|
-if (Search criteria valid?) then (no)
-  :Show validation error;
-  |Passenger|
-  stop
-else (yes)
-endif
-:Fetch SCHEDULED/DELAYED future flights;
-:Compute seats left for each flight;
-:Display flight list;
+:Display bookable flights with seats left;
 |Passenger|
 :Select a flight;
 |System|
+if (Passenger already holds\na booking on it?) then (yes)
+  :Show "already booked";
+  stop
+endif
 :Show seat map\n(taken seats disabled);
 |Passenger|
-:Pick a free seat and confirm;
+:Pick a free seat;
 |System|
-if (Flight still bookable\nand not departed?) then (no)
-  :Show "booking is closed";
+:Show fare breakdown\nand payment window;
+|Passenger|
+:Choose Card / UPI / Net banking\nand enter the details;
+|System|
+if (Details valid?) then (no)
+  :Show the problem;
   stop
 endif
-if (Seat valid and still free?) then (no)
-  :Show "seat already taken";
-  stop
-endif
-if (Passenger already booked\non this flight?) then (yes)
-  :Show "you already hold a booking";
+:Reserve the seat;
+|Payment Gateway|
+:Authorize the payment;
+|System|
+if (Approved?) then (no)
+  :Release the seat;
+  :Show the bank's reason;
   stop
 endif
 :Generate unique PNR;
-:Save booking (status BOOKED);
-:Display PNR and seat;
+:Save booking and payment;
+:Show PNR and invoice;
 |Passenger|
-:Note PNR;
+:Download receipt (optional);
 stop
 @enduml

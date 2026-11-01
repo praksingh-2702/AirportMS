@@ -1,15 +1,19 @@
-digraph context {
-  graph [rankdir=LR splines=true nodesep=0.9 ranksep=2.6 fontname="DejaVu Sans" pad=0.3];
-  edge [color="#444444" fontname="DejaVu Sans" fontsize=10 arrowsize=0.7 fontsize=11];
-  "0" [shape=circle style=filled fillcolor="#D9E8FB" color="#000000" penwidth=1.6 fontname="DejaVu Sans" fontsize=12 fixedsize=true width=2.4 fontsize=15 penwidth=2.2 label="0\nAirport\nManagement\nSystem"];
-  "PAX" [shape=box style=filled fillcolor="#FFF4C2" color="#000000" penwidth=1.6 fontname="DejaVu Sans" fontsize=12 margin="0.15,0.08" fontsize=14 label="Passenger"];
-  "STF" [shape=box style=filled fillcolor="#FFF4C2" color="#000000" penwidth=1.6 fontname="DejaVu Sans" fontsize=12 margin="0.15,0.08" fontsize=14 label="Check-in Staff"];
-  "ADM" [shape=box style=filled fillcolor="#FFF4C2" color="#000000" penwidth=1.6 fontname="DejaVu Sans" fontsize=12 margin="0.15,0.08" fontsize=14 label="Administrator"];
-  "PAX" -> "0" [label="Registration details\nLogin credentials\nSearch criteria\nBooking request\nCancellation request"];
-  "0" -> "PAX" [label="Registration confirmation\nAuthentication result\nFlight list\nSeat availability\nBooking confirmation\nCancellation confirmation\nBoarding pass"];
+digraph "context" {
+  graph [rankdir=LR bgcolor="#FFFFFF" fontname="DejaVu Sans" pad=0.3 splines=true nodesep=0.9 ranksep=2.8];
+  node [fontname="DejaVu Sans" fontsize=12 color="#000000" fillcolor="#D9E8FB" style=filled penwidth=1.3];
+  edge [fontname="DejaVu Sans" fontsize=10 color="#444444" arrowsize=0.7];
+  "0" [shape=circle style=filled fillcolor="#D9E8FB" penwidth=2.2 fixedsize=true width=2.4 fontsize=15 label="0\nAirport\nManagement\nSystem"];
+  "PAX" [shape=box style=filled fillcolor="#FFF4C2" penwidth=1.6 margin="0.16,0.09" fontsize=13 fontsize=14 label="Passenger"];
+  "STF" [shape=box style=filled fillcolor="#FFF4C2" penwidth=1.6 margin="0.16,0.09" fontsize=13 fontsize=14 label="Check-in Staff"];
+  "ADM" [shape=box style=filled fillcolor="#FFF4C2" penwidth=1.6 margin="0.16,0.09" fontsize=13 fontsize=14 label="Administrator"];
+  "GW" [shape=box style=filled fillcolor="#FFF4C2" penwidth=1.6 margin="0.16,0.09" fontsize=13 fontsize=14 label="Payment Gateway"];
+  "PAX" -> "0" [label="Registration details\nLogin credentials\nSearch criteria\nBooking request\nCancellation request\nPayment details"];
+  "0" -> "PAX" [label="Registration confirmation\nAuthentication result\nFlight list\nSeat availability\nBooking confirmation\nCancellation confirmation\nBoarding pass\nFare breakdown\nPayment result\nPayment receipt\nRefund confirmation"];
   "STF" -> "0" [label="Login credentials\nPNR\nBag details\nBag status update"];
   "0" -> "STF" [label="Authentication result\nBooking details\nBoarding pass\nBag tag\nBaggage summary"];
-  "ADM" -> "0" [label="Login credentials\nFlight details\nGate assignment\nFlight status change\nFlight cancellation\nStaff account details"];
-  "0" -> "ADM" [label="Authentication result\nFlight schedule\nSchedule confirmation\nUser list"];
-  { rank=min; "PAX"; } { rank=max; "STF"; "ADM"; }
+  "ADM" -> "0" [label="Login credentials\nFlight details\nGate assignment\nFlight status change\nFlight cancellation\nStaff account details\nService details\nGeneration request"];
+  "0" -> "ADM" [label="Authentication result\nFlight schedule\nSchedule confirmation\nUser list\nService list\nGeneration summary\nRevenue summary"];
+  "0" -> "GW" [label="Authorization request"];
+  "GW" -> "0" [label="Authorization result"];
+  { rank=min; "PAX"; } { rank=max; "STF"; "ADM"; "GW"; }
 }

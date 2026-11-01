@@ -1,13 +1,13 @@
 digraph "structure_chart_transform_booking" {
-  graph [fontname="DejaVu Sans" pad=0.3 rankdir=TB nodesep=0.35 ranksep=0.9];
-  node [fontname="DejaVu Sans" fontsize=12];
-  edge [fontname="DejaVu Sans" fontsize=10 color="#333333"];
-  node [shape=box style="filled" fillcolor="white" penwidth=1.3 width=1.6];
-  labelloc=t label="Structure Chart 3 - Transform Analysis of DFD 4.0 (Book Ticket)" fontsize=14;
+  graph [rankdir=TB bgcolor="#FFFFFF" fontname="DejaVu Sans" pad=0.3 splines=true nodesep=0.35 ranksep=0.9];
+  node [fontname="DejaVu Sans" fontsize=12 color="#000000" fillcolor="#D9E8FB" style=filled penwidth=1.3];
+  edge [fontname="DejaVu Sans" fontsize=10 color="#444444" arrowsize=0.7];
+  node [shape=box style=filled fillcolor="white" width=1.6];
+  labelloc=t label="Structure Chart 3 - Transform Analysis of DFD 0.4 (Book Ticket)" fontsize=14;
   root [label="Book Ticket\nBookingService.book_ticket()" fillcolor="#D9E8FB"];
   aff [label="Get Valid Request" fillcolor="white"];
   gf [label="Get Flight\nSELECT flights" fillcolor="white"];
-  ps [label="Validate Seat\nparse_seat()" fillcolor="white"];
+  ps [label="Validate Seat\nparse_seat()" fillcolor="white" peripheries=2];
   chk [label="Check Seat & Duplicate\nget_taken_seats()" fillcolor="white"];
   pnr [label="Generate PNR\n_unique_pnr()" fillcolor="white"];
   eff [label="Record & Confirm" fillcolor="white"];
@@ -21,5 +21,5 @@ digraph "structure_chart_transform_booking" {
   root -> eff [label="○ pnr, flight, seat ↓\n○ booking ↑" arrowsize=0.7];
   eff -> ins [label="○ booking row ↓\n○ booking_id ↑" arrowsize=0.7];
   eff -> msg [label="○ booking ↓" arrowsize=0.7];
-  legend [shape=note fillcolor="#EEEEEE" fontsize=10 label="○ data couple   ● control flag\n↓ passed to called module   ↑ returned to caller"];
+  legend [shape=note fillcolor="#EEEEEE" fontsize=10 label="○ data couple   ● control flag\n↓ passed to called module   ↑ returned to caller\ndouble border = library module"];
 }

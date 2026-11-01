@@ -2,7 +2,7 @@
 from tkinter import messagebox, ttk
 
 from ..models import Role
-from .widgets import DataTable, FormPanel, run_action
+from .widgets import Button, DataTable, FormPanel, run_action
 
 COLUMNS = [("username", "Username", 110), ("role", "Role", 90), ("name", "Full name", 160),
            ("email", "E-mail", 200), ("phone", "Phone", 110)]
@@ -15,15 +15,18 @@ class UsersView(ttk.Frame):
     def __init__(self, parent, ctx):
         super().__init__(parent, padding=12)
         self.ctx = ctx
-        ttk.Label(self, text="User accounts", style="Heading.TLabel").pack(anchor="w")
-        self.table = DataTable(self, COLUMNS, height=10)
-        self.table.pack(fill="both", expand=True, pady=8)
+        ttk.Label(self, text="User accounts", style="Heading.TLabel", font="AMSHeading").pack(anchor="w")
         box = ttk.LabelFrame(self, text="Create staff / admin account", padding=10)
-        box.pack(fill="x")
+        box.pack(side="bottom", fill="x")
+        self.table = DataTable(self, COLUMNS, height=4, empty_text="No users.")
+        self.table.pack(fill="both", expand=True, pady=8)
         self.form = FormPanel(box, FIELDS, columns=2, entry_width=26)
         self.form.pack(anchor="w")
         self.form.set({"role": "STAFF"})
-        ttk.Button(box, text="Create account", style="Accent.TButton", command=self.create).pack(anchor="e", pady=(8, 0))
+        Button(box, text="Create account", style="Accent.TButton", command=self.create).pack(anchor="e", pady=(8, 0))
+        self.refresh()
+
+    def on_show(self):
         self.refresh()
 
     def refresh(self):

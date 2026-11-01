@@ -7,5 +7,7 @@ from .auth_service import AuthService
 from .booking_service import BookingService
 from .checkin_service import CheckInService, compute_excess_fee
 from .flight_service import FlightService
+from .payment_service import PaymentService
+from .schedule_service import ScheduleService
 
-__all__ = ["AuthService", "FlightService", "BookingService", "CheckInService", "compute_excess_fee"]
+__all__ = ["AuthService", "FlightService", "ScheduleService", "PaymentService", "BookingService", "CheckInService", "compute_excess_fee"]

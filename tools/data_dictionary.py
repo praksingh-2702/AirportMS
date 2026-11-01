@@ -1,5 +1,6 @@
 """Data dictionary for every data flow and data store in the DFDs (Rajib Mall notation).
 
+Names are written in the textbook's lower-case hyphenated form (valid-data) in the JSON that the report uses.
 Notation:  =  is composed of   +  and   [a | b]  either a or b   {x}  zero or more x
            {x}n  up to n of x   (x)  optional x   "..."  literal
 Running this file checks that every flow name used in tools/dfd_spec.py is defined
@@ -7,9 +8,11 @@ and writes docs/data_dictionary.json for the report generator.
 """
 import json
 import os
+import re
 import sys
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import bookstyle as B  # noqa: E402
 import dfd_spec as S  # noqa: E402
 
 # name: (composition, description)
@@ -23,6 +26,10 @@ COMPOSITE = {
                     "Data store (table bookings). A seat is unique per flight among non-cancelled bookings."),
     "D4 Baggage": ("{bag_id + booking_id + tag_no + weight_kg + bag_status + updated_at}",
                    "Data store (table baggage)."),
+    "D5 Recurring Services": ("{template_id + flight_no + airline + origin + destination + dep_time + duration_min + days + rows + base_fare + active}",
+                              "Data store (table flight_templates). One row per daily service, e.g. 6E6001 DEL-BOM 06:25."),
+    "D6 Payments": ("{payment_id + booking_id + invoice_no + method + instrument + amount + base_fare + airport_fee + gst + convenience_fee + payment_status + reference + paid_at + refund_amount + (refund_reason) + (refunded_at)}",
+                    "Data store (table payments). At most one payment per booking. Card number and CVV are never stored."),
     # ---- flows
     "Registration details": ("username + password + confirm_password + full_name + email + phone",
                              "Entered by a new passenger on the registration dialog."),
@@ -40,7 +47,7 @@ COMPOSITE = {
     "Gate schedule": ("{gate + departure + flight_status}", "Active flights at a gate, used for the 60-minute conflict check."),
     "Gate-checked flight": ("Valid flight details", "Flight whose gate (if any) has no conflict."),
     "Gate assignment": ("flight_id + gate", "Administrator assigns or changes the gate."),
-    "Gate request": ("gate + departure + flight_id", "Sent to 2.2 to check a gate."),
+    "Gate request": ("gate + departure + flight_id", "Sent to 0.2.2 to check a gate."),
     "Gate free": ("[\"true\" | \"false\"]", "Result of the gate availability check."),
     "Flight record": ("flight_id + flight_no + airline + origin + destination + departure + arrival + (gate) + rows + fare + flight_status",
                       "One row of D2."),
@@ -49,7 +56,7 @@ COMPOSITE = {
     "Schedule confirmation": ("message", "e.g. 'Flight AI777 added.'"),
     "Flight status change": ("flight_id + new_status", "new_status = [SCHEDULED | DELAYED | BOARDING | DEPARTED]."),
     "Flight cancellation": ("flight_id", "Request to cancel a flight (cascades to bookings)."),
-    "Cancel request": ("flight_id", "Raised by 2.5 when the new status is CANCELLED."),
+    "Cancel request": ("flight_id", "Raised by 0.2.5 when the new status is CANCELLED."),
     "Booking status update": ("flight_id + \"CANCELLED\"", "All active bookings of a cancelled flight become CANCELLED."),
     "Search criteria": ("(origin) + (destination) + (travel_date)", "Blank fields match all flights."),
     "Valid criteria": ("Search criteria", "Criteria in valid IATA / date format."),
@@ -86,6 +93,39 @@ COMPOSITE = {
     "Bag tag": ("\"AMS\" + 6{digit}6", "e.g. AMS000003; derived from bag_id."),
     "Baggage summary": ("bag_count + total_weight_kg + excess_fee", "excess_fee = 500 x ceil(total - 15) if total > 15 else 0."),
     "Bag status update": ("bag_id + new_bag_status", "new_bag_status = [LOADED | UNLOADED | CLAIMED | MISHANDLED]."),
+    # ---- recurring schedule
+    "Service details": ("flight_no + airline + origin + destination + dep_time + duration_min + days + rows + base_fare",
+                        "Entered by the administrator for one daily service; days = [\"Daily\" | \"Weekdays\" | {weekday}]."),
+    "Valid service": ("Service details", "Service details that passed the format checks and are not a duplicate."),
+    "Service record": ("template_id + flight_no + airline + origin + destination + dep_time + duration_min + days + rows + base_fare + active",
+                       "One row of D5."),
+    "Service list": ("{Service record}", "Table of recurring services on the Schedule tab."),
+    "Generation request": ("days", "Number of days (1-90) for which dated flights are to be created."),
+    "Existing flights": ("{flight_no + departure + flight_status}", "Used so that a generated flight is never created twice, or re-created after a cancellation."),
+    "Due services": ("{Service record + departure}", "Active services that run on a given date and depart in the future."),
+    "Priced flights": ("{Due services + fare}", "fare = base_fare x time-of-day, weekday and days-ahead factors, kept within 500..200000."),
+    "Gate-assigned flights": ("{Priced flights + (gate)}", "A free gate is chosen so that no two active flights at one gate depart within 60 minutes."),
+    "Generation summary": ("created_count + skipped_count + last_day", "e.g. 'Created 1,200 flight(s); 30 already existed.'"),
+    # ---- payments and refunds
+    "Payment request": ("booking_id + base_fare", "Sent by 0.4 when a seat has been reserved and must be paid for."),
+    "Fare breakdown": ("base_fare + airport_fee + gst + convenience_fee + total", "total = base_fare + 200 + 5% of (base_fare + 200) + 150."),
+    "Amount due": ("total", "Passed on to be authorised."),
+    "Payment details": ("method + [card_number + expiry + cvv + name_on_card | upi_id | bank]", "method = [\"CARD\" | \"UPI\" | \"NETBANKING\"]."),
+    "Valid payment details": ("Payment details", "Details that passed the Luhn check, expiry, CVV, UPI-id and bank checks."),
+    "Authorization request": ("method + details + amount", "Sent to the (simulated) payment gateway."),
+    "Authorization result": ("[approved + reference | declined + message]", "e.g. 'Card declined by the issuing bank.'"),
+    "Approved payment": ("Valid payment details + reference", "Payment the gateway has approved."),
+    "Payment result": ("[payment | message]", "payment on success; the bank's reason when declined."),
+    "Payment record": ("payment_id + booking_id + invoice_no + method + instrument + amount + base_fare + airport_fee + gst + convenience_fee + payment_status + reference + paid_at + refund_amount + (refund_reason) + (refunded_at)",
+                       "One row of D6."),
+    "Payment receipt": ("invoice_no + passenger_name + pnr + flight_no + breakdown + instrument + reference + (refund)", "One-page PDF receipt."),
+    "Cancellation notice": ("booking_id", "Sent by 0.4 when a passenger or administrator cancels a booking."),
+    "Flight cancellation notice": ("flight_id", "Sent by 0.2 so that every paid booking on the flight is refunded in full."),
+    "Refund amount": ("amount + charge + percent", "refund = amount - convenience_fee - charge; charge = percent of base_fare (10 / 25 / 50 / 100 by time to departure)."),
+    "Refund confirmation": ("message", "e.g. 'Rs 5,170 refunded to UPI pr***@oksbi (demo).'"),
+    "Revenue summary": ("total_paid - total_refunded", "Shown as a tile on the administrator's dashboard."),
+    "Paid booking": ("Booking details", "Operating-flight booking that has a PAID payment."),
+    "Boarding pass data": ("Boarding pass", "Input to the PDF writer."),
 }
 
 ELEMENTARY = [
@@ -104,6 +144,17 @@ ELEMENTARY = [
     ("booking_status", "[BOOKED | CHECKED_IN | CANCELLED]", "enum BookingStatus"),
     ("weight_kg", "real, 0 < w <= 32, 1 decimal", ""),
     ("bag_status", "[CHECKED_IN | LOADED | UNLOADED | CLAIMED | MISHANDLED]", "enum BagStatus"),
+    ("dep_time", "HH:MM, 24-hour", "departure time of a recurring service"),
+    ("duration_min", "integer 20-1200", "flying time in minutes"),
+    ("days", "ISO weekday digits 1-7 (1 = Monday)", "'Daily' = 1234567"),
+    ("method", "[CARD | UPI | NETBANKING | LEGACY]", "LEGACY marks bookings made before payments existed"),
+    ("card_number", "13-19 digits passing the Luhn check", "never stored; only 'VISA XXXX 1111' is kept"),
+    ("expiry", "MM/YY, not in the past", "never stored"),
+    ("cvv", "3 digits (4 for American Express)", "never stored"),
+    ("upi_id", "name@bank", "stored masked, e.g. pr***@okaxis"),
+    ("amount", "integer INR", "total = fare + airport fee + GST + convenience fee"),
+    ("invoice_no", "INV-YYYYMMDD-nnnnn", "unique per payment"),
+    ("payment_status", "[PAID | REFUNDED]", "enum PaymentStatus"),
 ]
 
 
@@ -116,6 +167,21 @@ def all_flow_names():
     return names
 
 
+def hyphenate(entries):
+    """Rewrite names, and references to other names inside compositions, in the book's hyphenated form."""
+    names = sorted((k for k in entries if k[:2] not in ("D1", "D2", "D3", "D4", "D5", "D6")), key=len, reverse=True)
+
+    def fix(text):
+        for n in names:
+            text = re.sub(r"(?<![A-Za-z_-])" + re.escape(n) + r"(?![A-Za-z_-])", B.hy(n), text)
+        return text
+    out = {}
+    for k, (comp, desc) in entries.items():
+        key = f"{k[:2]} {B.hy(k[3:])}" if k[:2] in ("D1", "D2", "D3", "D4", "D5", "D6") else B.hy(k)
+        out[key] = (fix(comp), desc)
+    return out
+
+
 def main():
     missing = all_flow_names() - set(COMPOSITE)
     stores = {f"{k} {v}" for k, v in S.STORES.items()} - set(COMPOSITE)
@@ -125,9 +191,10 @@ def main():
     if unused:
         sys.exit(f"Entries not used in any DFD: {sorted(unused)}")
     out = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "docs", "data_dictionary.json")
-    stores_first = sorted(COMPOSITE, key=lambda k: (not k.startswith("D"), k.lower()) if k[:2] in ("D1", "D2", "D3", "D4") else (True, k.lower()))
+    entries = hyphenate(COMPOSITE)
+    stores_first = sorted(entries, key=lambda k: (0, k) if k[:2] in ("D1", "D2", "D3", "D4", "D5", "D6") else (1, k))
     with open(out, "w", encoding="utf-8") as fh:
-        json.dump({"composite": [[k, *COMPOSITE[k]] for k in stores_first], "elementary": ELEMENTARY}, fh, indent=1)
+        json.dump({"composite": [[k, *entries[k]] for k in stores_first], "elementary": ELEMENTARY}, fh, indent=1)
     print(f"Data dictionary OK: {len(COMPOSITE)} composite entries, {len(ELEMENTARY)} elementary items -> {out}")
 
 

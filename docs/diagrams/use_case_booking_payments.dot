@@ -1,0 +1,42 @@
+digraph "use_case_booking_payments" {
+  graph [rankdir=LR bgcolor="#FFFFFF" fontname="DejaVu Sans" pad=0.3 splines=true nodesep=0.22 ranksep=1.3];
+  node [fontname="DejaVu Sans" fontsize=12 color="#000000" fillcolor="#D9E8FB" style=filled penwidth=1.3];
+  edge [fontname="DejaVu Sans" fontsize=10 color="#444444" arrowsize=0.7];
+  edge [dir=none arrowsize=0.8];
+  PAX [shape=none style="" image="/tmp/claude-0/-home-claude/175e18c3-3ae4-54e1-bc52-2203469a8b02/scratchpad/clean/AirportMS/docs/diagrams/_actor.png" imagepos=tc labelloc=b height=1.9 width=1.0 fontsize=13 label="Passenger"];
+  STF [shape=none style="" image="/tmp/claude-0/-home-claude/175e18c3-3ae4-54e1-bc52-2203469a8b02/scratchpad/clean/AirportMS/docs/diagrams/_actor.png" imagepos=tc labelloc=b height=1.9 width=1.0 fontsize=13 label="Check-in Staff"];
+  ADM [shape=none style="" image="/tmp/claude-0/-home-claude/175e18c3-3ae4-54e1-bc52-2203469a8b02/scratchpad/clean/AirportMS/docs/diagrams/_actor.png" imagepos=tc labelloc=b height=1.9 width=1.0 fontsize=13 label="Administrator"];
+  GW [shape=none style="" image="/tmp/claude-0/-home-claude/175e18c3-3ae4-54e1-bc52-2203469a8b02/scratchpad/clean/AirportMS/docs/diagrams/_actor.png" imagepos=tc labelloc=b height=1.9 width=1.0 fontsize=13 label="Payment Gateway\n(external system)"];
+  subgraph cluster_sys { label="Airport Management System" fontname="DejaVu Sans" fontsize=15 style=rounded color="#333333" penwidth=1.5 bgcolor="#FFFFFF";
+    subgraph cluster_m0 { label="Booking" fontname="DejaVu Sans" fontsize=12 style=dashed color="#888888";
+      UC06 [shape=ellipse style=filled fillcolor="#D9E8FB" color="#333333" penwidth=1.0 margin="0.14,0.06" fontsize=12 label="Search Flights"];
+      UC07 [shape=ellipse style=filled fillcolor="#D9E8FB" color="#333333" penwidth=1.0 margin="0.14,0.06" fontsize=12 label="Book Ticket"];
+      UC08 [shape=ellipse style=filled fillcolor="#D9E8FB" color="#333333" penwidth=1.0 margin="0.14,0.06" fontsize=12 label="Select Seat"];
+      UC09 [shape=ellipse style=filled fillcolor="#D9E8FB" color="#333333" penwidth=1.0 margin="0.14,0.06" fontsize=12 label="Cancel Booking"];
+      UC10 [shape=ellipse style=filled fillcolor="#D9E8FB" color="#333333" penwidth=1.0 margin="0.14,0.06" fontsize=12 label="View All Bookings"];
+    }
+    subgraph cluster_m1 { label="Payments" fontname="DejaVu Sans" fontsize=12 style=dashed color="#888888";
+      UC26 [shape=ellipse style=filled fillcolor="#D9E8FB" color="#333333" penwidth=1.0 margin="0.14,0.06" fontsize=12 label="Pay for Booking"];
+      UC27 [shape=ellipse style=filled fillcolor="#D9E8FB" color="#333333" penwidth=1.0 margin="0.14,0.06" fontsize=12 label="Authorize Payment"];
+      UC28 [shape=ellipse style=filled fillcolor="#D9E8FB" color="#333333" penwidth=1.0 margin="0.14,0.06" fontsize=12 label="Download Receipt"];
+      UC29 [shape=ellipse style=filled fillcolor="#D9E8FB" color="#333333" penwidth=1.0 margin="0.14,0.06" fontsize=12 label="Refund Payment"];
+      UC30 [shape=ellipse style=filled fillcolor="#D9E8FB" color="#333333" penwidth=1.0 margin="0.14,0.06" fontsize=12 label="View Revenue"];
+    }
+  }
+  PAX -> UC06;
+  PAX -> UC07;
+  PAX -> UC09;
+  PAX -> UC26;
+  PAX -> UC28;
+  STF -> UC10;
+  STF -> UC28;
+  UC09 -> ADM;
+  UC10 -> ADM;
+  UC28 -> ADM;
+  UC30 -> ADM;
+  UC27 -> GW;
+  UC07 -> UC08 [dir=forward style=dashed xlabel="«include»" fontsize=10 constraint=false];
+  UC07 -> UC26 [dir=forward style=dashed xlabel="«include»" fontsize=10 constraint=false];
+  UC26 -> UC27 [dir=forward style=dashed xlabel="«include»" fontsize=10 constraint=false];
+  UC09 -> UC29 [dir=forward style=dashed xlabel="«include»" fontsize=10 constraint=false];
+}
